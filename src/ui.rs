@@ -175,7 +175,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.s_curve_beta,
+                                        chord_bender.bend_path.s_curve_sharpness,
                                     ) as f32,
                                 )
                             })

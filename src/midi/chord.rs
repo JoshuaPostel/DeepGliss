@@ -4,7 +4,7 @@ use vst::event::MidiEvent;
 
 use crate::midi::bender::{Bender, RenderedBender};
 use crate::midi::mapper::ChordMapper;
-use crate::midi::paths::{BendPath, Path};
+use crate::midi::paths::{BendPathBuilder, BendPath, Path};
 use crate::midi::Note;
 use crate::GLISS_EPOCH;
 
@@ -86,7 +86,7 @@ pub struct ChordBender {
     pub chords: Vec<Chord>,
     pub current_chord: usize,
     pub channels: Vec<Bender>,
-    pub bend_path: BendPath,
+    pub bend_path: BendPathBuilder,
     pub chord_mapper: ChordMapper,
 }
 
@@ -110,7 +110,7 @@ impl ChordBender {
             chords: vec![],
             current_chord: 0,
             channels: vec![],
-            bend_path: BendPath::default(),
+            bend_path: BendPathBuilder::default(),
             chord_mapper: ChordMapper::default(),
         }
     }
@@ -240,7 +240,7 @@ impl ChordBender {
                 now,
                 self.bend_duration,
                 self.hold_duration,
-                self.bend_path,
+                self.bend_path.build(),
             ) {
                 //new_midi_events.push(new_midi_event);
                 midi_events.push(new_midi_event);
@@ -260,7 +260,7 @@ impl ChordBender {
                 now,
                 self.bend_duration,
                 self.hold_duration,
-                self.bend_path,
+                self.bend_path.build(),
             );
             renderables.push(renderable);
         }

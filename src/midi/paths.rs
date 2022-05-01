@@ -1,3 +1,6 @@
+use rand::Rng;
+use std::ops::RangeInclusive;
+
 use crate::midi::Bend;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -35,11 +38,98 @@ impl Path {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct BendPathBuilder {
+    // where None representes random
+    pub path: Option<Path>,
+    pub amplitude: f64,
+    pub amplitude_randomness: f64,
+    pub periods: f64,
+    pub periods_randomness: f64,
+    pub s_curve_sharpness: f64,
+    pub s_curve_sharpness_randomness: f64,
+}
+
+impl Default for BendPathBuilder {
+    fn default() -> Self {
+        // made to match BendPath.default()
+        Self {
+            path: Some(Path::default()),
+            amplitude: 500.0,
+            amplitude_randomness: 0.0,
+            periods: 2.0,
+            periods_randomness: 0.0,
+            s_curve_sharpness: 2.0,
+            s_curve_sharpness_randomness: 0.0,
+        }
+    }
+}
+
+impl BendPathBuilder {
+
+    pub fn build(&self) -> BendPath {
+
+        let mut rng = rand::thread_rng();
+        let path = match self.path {
+            Some(p) => p,
+            None => Path::from_f32(rng.gen()),
+        };
+
+        BendPath {
+            path,
+            amplitude: rng.gen_range(self.amplitude-self.amplitude_randomness..=self.amplitude+self.amplitude_randomness),
+            periods: rng.gen_range(self.periods-self.periods_randomness..=self.periods+self.periods_randomness),
+            s_curve_beta: rng.gen_range(self.s_curve_sharpness-self.s_curve_sharpness_randomness..=self.s_curve_sharpness+self.s_curve_sharpness_randomness),
+        }
+    }
+}
+
+//#[derive(Debug, Clone)]
+//pub struct BendPathBuilder {
+//    // where None representes random
+//    pub path: Option<Path>,
+//    pub amplitude_range: RangeInclusive<f64>,
+//    pub periods_range: RangeInclusive<f64>,
+//    pub s_curve_sharpness_range: RangeInclusive<f64>,
+//}
+//
+//impl Default for BendPathBuilder {
+//    fn default() -> Self {
+//        // made to match BendPath.default()
+//        Self {
+//            path: Some(Path::default()),
+//            amplitude_range: 500.0..=500.0,
+//            periods_range: 2.0..=2.0,
+//            s_curve_sharpness_range: 2.0..=2.0,
+//        }
+//    }
+//}
+//
+//impl BendPathBuilder {
+//
+//    pub fn build(&self) -> BendPath {
+//
+//        let mut rng = rand::thread_rng();
+//        let path = match self.path {
+//            Some(p) => p,
+//            None => Path::from_f32(rng.gen()),
+//        };
+//
+//        BendPath {
+//            path,
+//            amplitude: rng.gen_range(self.amplitude_range),
+//            periods: rng.gen_range(self.periods_range),
+//            s_curve_beta: rng.gen_range(self.s_curve_sharpness_range),
+//        }
+//    }
+//}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BendPath {
     pub path: Path,
     pub amplitude: f64,
     pub periods: f64,
+    // TODO rename to s_curve_sharpness
     pub s_curve_beta: f64,
 }
 
@@ -55,23 +145,6 @@ impl Default for BendPath {
 }
 
 impl BendPath {
-    // TODO
-    fn default_for(path: Path) -> Self {
-        match path {
-            Path::Sin { .. } => Self {
-                path: Path::Sin,
-                amplitude: 1_000.0,
-                periods: 1.0,
-                s_curve_beta: 1.0,
-            },
-            _ => Self {
-                path: Path::Linear,
-                amplitude: 0.0,
-                periods: 1.0,
-                s_curve_beta: 1.0,
-            },
-        }
-    }
 
     pub fn bend(
         &self,

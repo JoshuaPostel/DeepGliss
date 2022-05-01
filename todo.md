@@ -4,10 +4,10 @@
 * replicate something close to DeepNote using gliss
   * required features:
     * random phase shift amount accross different channels
-    * random small amount of detune
 
 ## DEBUG
 * plugin crashes on bend > 24 semitones
+  * adjustable `PITCH_BEND_RANGE`
 
 ## FUNCTIONALITY
 * first note should not have a bend of zero
@@ -44,7 +44,6 @@
   * `= max (16)`
     * would avoid playing new notes
 * presets
-* adjustable `PITCH_BEND_RANGE`
 * set `bend_duration` based on when keys are released?
 
 ## TESTS
