@@ -239,6 +239,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         1.0,
                                         chord_bender.bend_path.amplitude / 1_000.0,
                                         chord_bender.bend_path.periods,
+                                        chord_bender.bend_path.phase,
                                     ) as f32,
                                 )
                             })

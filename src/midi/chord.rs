@@ -137,15 +137,16 @@ impl ChordBender {
         note.channel = channel;
         note.new_note_on = true;
         log::info!("new_channel called with bend_path: {bend_path:?}");
-        let new_path = BendPath {
-            path: Path::Linear,
-            amplitude: bend_path.amplitude,
-            periods: bend_path.periods,
-            s_curve_beta: bend_path.s_curve_beta,
-        };
+//        let new_path = BendPath {
+//            path: Path::Linear,
+//            amplitude: bend_path.amplitude,
+//            periods: bend_path.periods,
+//            s_curve_beta: bend_path.s_curve_beta,
+//            phase: bend_path.phase,
+//        };
         let (bender, new_note_event) =
-            //Bender::new(note, now, bend_duration, hold_duration, bend_path);
-            Bender::new(note, now, bend_duration, hold_duration, new_path);
+            Bender::new(note, now, bend_duration, hold_duration, bend_path);
+            //Bender::new(note, now, bend_duration, hold_duration, new_path);
         let renderable = bender.get_render();
         channels.push(bender);
         Some((new_note_event, renderable))
@@ -232,6 +233,9 @@ impl ChordBender {
         log::info!("notes before mapper: {:?}", chord.notes);
         let (target_note_indicies, new_note_indicies) =
             self.chord_mapper.get_mapping(&self.channels, &chord.notes);
+
+        // for testing how total randomness sounds
+        //self.bend_path.path = None;
 
         for new_note_idx in new_note_indicies {
             if let Some((new_midi_event, renderable)) = ChordBender::new_channel(

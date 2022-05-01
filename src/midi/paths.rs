@@ -48,6 +48,8 @@ pub struct BendPathBuilder {
     pub periods_randomness: f64,
     pub s_curve_sharpness: f64,
     pub s_curve_sharpness_randomness: f64,
+    pub phase: f64,
+    pub phase_randomness: f64,
 }
 
 impl Default for BendPathBuilder {
@@ -61,6 +63,8 @@ impl Default for BendPathBuilder {
             periods_randomness: 0.0,
             s_curve_sharpness: 2.0,
             s_curve_sharpness_randomness: 0.0,
+            phase: 0.0,
+            phase_randomness: 10.0
         }
     }
 }
@@ -80,6 +84,7 @@ impl BendPathBuilder {
             amplitude: rng.gen_range(self.amplitude-self.amplitude_randomness..=self.amplitude+self.amplitude_randomness),
             periods: rng.gen_range(self.periods-self.periods_randomness..=self.periods+self.periods_randomness),
             s_curve_beta: rng.gen_range(self.s_curve_sharpness-self.s_curve_sharpness_randomness..=self.s_curve_sharpness+self.s_curve_sharpness_randomness),
+            phase: rng.gen_range(self.phase-self.phase_randomness..=self.phase+self.phase_randomness),
         }
     }
 }
@@ -131,6 +136,7 @@ pub struct BendPath {
     pub periods: f64,
     // TODO rename to s_curve_sharpness
     pub s_curve_beta: f64,
+    pub phase: f64,
 }
 
 impl Default for BendPath {
@@ -140,6 +146,7 @@ impl Default for BendPath {
             amplitude: 500.0,
             periods: 2.0,
             s_curve_beta: 2.0,
+            phase: 0.0,
         }
     }
 }
@@ -169,6 +176,7 @@ impl BendPath {
                 target_bend,
                 self.amplitude,
                 self.periods,
+                self.phase,
             ) as u16),
             Path::Step => Bend(BendPath::get_step_bend(
                 time,
@@ -247,6 +255,7 @@ impl BendPath {
         target_bend: f64,
         amplitude: f64,
         periods: f64,
+        phase: f64,
     ) -> f64 {
         // same as linear bend
         let t = (time - start_time) / (stop_time - start_time);
@@ -254,7 +263,8 @@ impl BendPath {
         let amount = start_bend + (t * adj_target);
 
         // TODO figure out the semitones -> bend conversion
-        let sin_adj = amplitude * (periods * std::f64::consts::TAU * t).sin();
+        let phase_adj = amplitude * (periods * std::f64::consts::TAU * (phase)).sin();
+        let sin_adj = amplitude * (periods * std::f64::consts::TAU * (t + phase)).sin() - phase_adj;
         log::debug!("sin_adj: {sin_adj}");
 
         amount + sin_adj
