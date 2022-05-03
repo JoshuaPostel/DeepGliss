@@ -49,6 +49,7 @@
 ## POLISH
 * investigate ways to mitigate beating
 * parameters
+  * periods parameter should be floored
   * chord capture time
 
 ## DECISIONS
