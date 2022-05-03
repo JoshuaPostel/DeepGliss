@@ -25,6 +25,7 @@ pub enum GlissParam {
     BendPathAmplitude,
     BendPathPeriods,
     BendPathSCurveSharpness,
+    BendPathPhase,
 }
 
 pub struct ParamConfig {
@@ -82,6 +83,7 @@ impl GlissParam {
             }
             GlissParam::BendPathPeriods => ParamConfig::new(0.0, 20.0, 2.0, 1.0, "P"),
             GlissParam::BendPathSCurveSharpness => ParamConfig::new(1.0, 5.0, 2.0, 1.0, "S"),
+            GlissParam::BendPathPhase => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Z"),
         }
     }
 }
@@ -95,6 +97,7 @@ fn get_parameter_index(parameter: GlissParam) -> usize {
         GlissParam::BendPathAmplitude => 4,
         GlissParam::BendPathPeriods => 5,
         GlissParam::BendPathSCurveSharpness => 6,
+        GlissParam::BendPathPhase => 7,
     }
 }
 
@@ -110,7 +113,7 @@ impl Default for EditorState {
         let init_time = std::time::Instant::now();
         EditorState {
             // TODO i dont think we need to clone anymore
-            params: Arc::new(ParameterTransfer::new(7)),
+            params: Arc::new(ParameterTransfer::new(8)),
             chord_bender: Arc::new(Mutex::new(ChordBender::new(
                 init_time,
                 Nano::SECOND * 2.0,
@@ -164,6 +167,7 @@ impl EditorState {
         self.set_parameter_to_default(GlissParam::BendPathAmplitude);
         self.set_parameter_to_default(GlissParam::BendPathPeriods);
         self.set_parameter_to_default(GlissParam::BendPathSCurveSharpness);
+        self.set_parameter_to_default(GlissParam::BendPathPhase);
     }
 }
 
@@ -197,6 +201,7 @@ impl PluginParameters for EditorState {
             4 => format!("{:.2} semitones", self.params.get_parameter(4)),
             5 => format!("{:.2} periods", self.params.get_parameter(5)),
             6 => format!("{:.2}", self.params.get_parameter(6)),
+            7 => format!("{:.2}", self.params.get_parameter(7)),
             _ => "".to_string(),
         }
     }
@@ -210,6 +215,7 @@ impl PluginParameters for EditorState {
             4 => "Bend Path Amplitude",
             5 => "Bend Path Periods",
             6 => "Bend Path S-Curve Sharpness",
+            7 => "Bend Path Phase",
             _ => "",
         }
         .to_string()

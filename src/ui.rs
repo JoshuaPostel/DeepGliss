@@ -5,7 +5,7 @@ use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
 use crate::state::EditorState;
 use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness,
+    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase,
 };
 
 use std::sync::Arc;
@@ -253,7 +253,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Sin,
                             Path::Sin,
-                            vec![BendPathAmplitude, BendPathPeriods],
+                            vec![BendPathAmplitude, BendPathPeriods, BendPathPhase],
                             &mut keyboard_focus,
                         );
 

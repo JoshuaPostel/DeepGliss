@@ -1,5 +1,4 @@
 use rand::Rng;
-use std::ops::RangeInclusive;
 
 use crate::midi::Bend;
 
@@ -64,7 +63,7 @@ impl Default for BendPathBuilder {
             s_curve_sharpness: 2.0,
             s_curve_sharpness_randomness: 0.0,
             phase: 0.0,
-            phase_randomness: 10.0
+            phase_randomness: 0.0
         }
     }
 }
@@ -247,6 +246,7 @@ impl BendPath {
         start_bend + (range * factor)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn get_sin_bend(
         time: f64,
         start_time: f64,
@@ -262,9 +262,9 @@ impl BendPath {
         let adj_target = target_bend - start_bend;
         let amount = start_bend + (t * adj_target);
 
-        // TODO figure out the semitones -> bend conversion
         let phase_adj = amplitude * (periods * std::f64::consts::TAU * (phase)).sin();
         let sin_adj = amplitude * (periods * std::f64::consts::TAU * (t + phase)).sin() - phase_adj;
+        //let sin_adj = amplitude * (periods * std::f64::consts::TAU * (t + phase)).sin();
         log::debug!("sin_adj: {sin_adj}");
 
         amount + sin_adj

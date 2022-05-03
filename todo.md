@@ -24,6 +24,7 @@
 # TODO Backlog
 
 ## UI
+* flip keyboard so that low notes are at bottom and high notes at top
 * render notes differently based on `note.new_note_on`
 * `bend_duration` and `hold_duration`
   * add keyboard edit like the bend path buttons

@@ -2,7 +2,7 @@ use crate::draw::theme::GLISS_THEME;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::Path;
 use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness,
+    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase,
 };
 use crate::state::{EditorState, GlissParam, ParamConfig};
 
@@ -129,6 +129,7 @@ pub fn draw_path_button(
                 BendPathAmplitude => config.speed * response.drag_delta().y as f64,
                 BendPathPeriods => config.speed * response.drag_delta().x as f64,
                 BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
+                BendPathPhase => 0.0,
                 _ => unimplemented!(),
             };
             let val = state.get_ui_parameter(*param);

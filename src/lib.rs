@@ -18,7 +18,7 @@ use crate::midi::paths::Path;
 use crate::state::EditorState;
 use crate::state::GlissParam::{
     BendDuration, BendMapping, BendPath, BendPathAmplitude, BendPathPeriods,
-    BendPathSCurveSharpness, HoldDuration,
+    BendPathSCurveSharpness, HoldDuration, BendPathPhase,
 };
 use crate::ui::GlissEditor;
 
@@ -106,7 +106,7 @@ impl Plugin for Gliss {
             version: 3,
             inputs: 2,
             outputs: 2,
-            parameters: 7,
+            parameters: 8,
             category: Category::Effect,
             midi_outputs: 1,
             ..Default::default()
@@ -181,6 +181,7 @@ impl Plugin for Gliss {
         chord_bender.bend_path.path = Some(Path::from_f32(self.state.get_parameter(BendPath)));
         chord_bender.chord_mapper.chord_map =
             ChordMap::from_f32(self.state.get_parameter(BendMapping));
+        chord_bender.bend_path.phase = self.state.get_gliss_parameter(BendPathPhase);
 
         let (events, new_rendered_benders) = chord_bender.bend(host_time);
 
