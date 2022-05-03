@@ -2,8 +2,6 @@
 
 ## DEMO
 * replicate something close to DeepNote using gliss
-  * required features:
-    * random phase shift amount accross different channels
 
 ## DEBUG
 * plugin crashes on bend > 24 semitones
@@ -25,7 +23,6 @@
 
 ## UI
 * flip keyboard so that low notes are at bottom and high notes at top
-* render notes differently based on `note.new_note_on`
 * display measure bars on timeline
 
 ## DEBUG

@@ -5,9 +5,7 @@ use crate::midi::mapper::ChordMap;
 use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
 use crate::state::EditorState;
-use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase, HoldDuration, BendDuration,
-};
+use crate::state::GlissParam::*;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -177,7 +175,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.s_curve_sharpness,
+                                        state.get_gliss_parameter(SCurveSharpness),
                                     ) as f32,
                                 )
                             })
@@ -191,7 +189,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::SCurve,
                             Path::SCurve,
-                            vec![BendPathSCurveSharpness],
+                            vec![SCurveSharpness],
                             &mut keyboard_focus,
                         );
 
@@ -239,9 +237,9 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
-                                        chord_bender.bend_path.phase,
+                                        state.get_gliss_parameter(SinAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(SinPeriods),
+                                        state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -255,7 +253,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Sin,
                             Path::Sin,
-                            vec![BendPathAmplitude, BendPathPeriods, BendPathPhase],
+                            vec![SinAmplitude, SinPeriods, SinPhase],
                             &mut keyboard_focus,
                         );
 
@@ -276,7 +274,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(StepPeriods),
                                     ) as f32,
                                 )
                             })
@@ -290,7 +288,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Step,
                             Path::Step,
-                            vec![BendPathPeriods],
+                            vec![StepPeriods],
                             &mut keyboard_focus,
                         );
 
@@ -311,8 +309,10 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(TriangleAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(TrianglePeriods),
+                                        // TODO
+                                        //state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -326,7 +326,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Triangle,
                             Path::Triangle,
-                            vec![BendPathAmplitude, BendPathPeriods],
+                            vec![TriangleAmplitude, TrianglePeriods, TrianglePhase],
                             &mut keyboard_focus,
                         );
 
@@ -347,8 +347,10 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(SawAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(SawPeriods),
+                                        // TODO
+                                        //state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -362,7 +364,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Saw,
                             Path::Saw,
-                            vec![BendPathAmplitude, BendPathPeriods],
+                            vec![SawAmplitude, SawPeriods, SawPhase],
                             &mut keyboard_focus,
                         );
                     });
@@ -372,7 +374,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                 //egui::widgets::global_dark_light_mode_switch(ui);
                 ui.vertical(|ui| {
                     ui.label("Parameters");
-                    let parameter_editor_rect = Rect::from_x_y_ranges(600.0..=900.0, 15.0..=150.0);
+                    let parameter_editor_rect = Rect::from_x_y_ranges(602.0..=900.0, 15.0..=150.0);
 
                     let editor_params = state.editor_params.lock().unwrap();
                     draw_parameter_editor(ui, state, editor_params.to_vec(), parameter_editor_rect);

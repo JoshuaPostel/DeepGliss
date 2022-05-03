@@ -1,11 +1,8 @@
 use crate::draw::theme::GLISS_THEME;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::Path;
-use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase,
-};
+use crate::state::GlissParam::*;
 use crate::state::{EditorState, GlissParam, ParamConfig};
-use crate::draw::parameter_editor::draw_parameter_editor;
 
 use std::sync::Arc;
 
@@ -128,11 +125,11 @@ pub fn draw_path_button(
         state.set_parameter(BendPath, path_variant.as_f64());
         for (config, param) in configs.iter().zip(params.iter()) {
             let dragged = match param {
-                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
-                BendPathPeriods => config.speed * response.drag_delta().x as f64,
-                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
-                BendPathPhase => 0.0,
-                _ => unimplemented!(),
+//                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
+//                BendPathPeriods => config.speed * response.drag_delta().x as f64,
+//                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
+//                BendPathPhase => 0.0,
+                _ => 0.0,
             };
             let val = state.get_ui_parameter(*param);
             let new_val = (val + dragged).min(config.max).max(config.min);

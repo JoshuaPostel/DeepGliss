@@ -22,11 +22,58 @@ pub enum GlissParam {
     HoldDuration,
     BendMapping,
     BendPath,
-    BendPathAmplitude,
-    BendPathPeriods,
-    BendPathSCurveSharpness,
-    BendPathPhase,
+    SCurveSharpness,
+    SCurveSharpnessRandomness,
+    StepPeriods,
+    StepPeriodsRandomness,
+    SinAmplitude,
+    SinAmplitudeRandomness,
+    SinPeriods,
+    SinPeriodsRandomness,
+    SinPhase,
+    SinPhaseRandomness,
+    TriangleAmplitude,
+    TriangleAmplitudeRandomness,
+    TrianglePeriods,
+    TrianglePeriodsRandomness,
+    TrianglePhase,
+    TrianglePhaseRandomness,
+    SawAmplitude,
+    SawAmplitudeRandomness,
+    SawPeriods,
+    SawPeriodsRandomness,
+    SawPhase,
+    SawPhaseRandomness,
 }
+
+const GLISS_PARAMETERS: [GlissParam; 26] = [
+    GlissParam::BendDuration,
+    GlissParam::HoldDuration,
+    GlissParam::BendMapping,
+    GlissParam::BendPath,
+    GlissParam::SCurveSharpness,
+    GlissParam::SCurveSharpnessRandomness,
+    GlissParam::StepPeriods,
+    GlissParam::StepPeriodsRandomness,
+    GlissParam::SinAmplitude,
+    GlissParam::SinAmplitudeRandomness,
+    GlissParam::SinPeriods,
+    GlissParam::SinPeriodsRandomness,
+    GlissParam::SinPhase,
+    GlissParam::SinPhaseRandomness,
+    GlissParam::TriangleAmplitude,
+    GlissParam::TriangleAmplitudeRandomness,
+    GlissParam::TrianglePeriods,
+    GlissParam::TrianglePeriodsRandomness,
+    GlissParam::TrianglePhase,
+    GlissParam::TrianglePhaseRandomness,
+    GlissParam::SawAmplitude,
+    GlissParam::SawAmplitudeRandomness,
+    GlissParam::SawPeriods,
+    GlissParam::SawPeriodsRandomness,
+    GlissParam::SawPhase,
+    GlissParam::SawPhaseRandomness,
+];
 
 pub struct ParamConfig {
     pub min: f64,
@@ -34,26 +81,13 @@ pub struct ParamConfig {
     pub default: f64,
     pub ui_to_gliss_scalar: f64,
     pub speed: f64,
-    pub ui_display: &'static str,
+    pub unit: &'static str, 
+    pub ui_name: &'static str,
+    pub daw_name: &'static str,
+    pub daw_display: &'static dyn Fn(f32) -> String,
 }
 
 impl ParamConfig {
-    fn new(
-        min: f64,
-        max: f64,
-        default: f64,
-        ui_to_gliss_scalar: f64,
-        ui_display: &'static str,
-    ) -> ParamConfig {
-        ParamConfig {
-            min,
-            max,
-            default,
-            ui_to_gliss_scalar,
-            speed: (max - min) / 100.0,
-            ui_display,
-        }
-    }
 
     pub fn map_to_daw(&self, gliss_value: f64) -> f32 {
         ((gliss_value - self.min) / (self.max - self.min)) as f32
@@ -69,36 +103,453 @@ impl ParamConfig {
 }
 
 impl GlissParam {
+    pub fn get_randomness_param(&self) -> Option<GlissParam> {
+        match self {
+            GlissParam::SCurveSharpness => {
+                Some(GlissParam::SCurveSharpnessRandomness)
+            },
+            GlissParam::StepPeriods => {
+                Some(GlissParam::StepPeriodsRandomness)
+            },
+            GlissParam::SinAmplitude => {
+                Some(GlissParam::SinAmplitudeRandomness)
+            },
+            GlissParam::SinPeriods => {
+                Some(GlissParam::SinPeriodsRandomness)
+            },
+            GlissParam::SinPhase => {
+                Some(GlissParam::SinPhaseRandomness)
+            },
+            GlissParam::TriangleAmplitude => {
+                Some(GlissParam::TriangleAmplitudeRandomness)
+            },
+            GlissParam::TrianglePeriods => {
+                Some(GlissParam::TrianglePeriodsRandomness)
+            }
+            GlissParam::TrianglePhase => {
+                Some(GlissParam::TrianglePhaseRandomness)
+            },
+            GlissParam::SawAmplitude => {
+                Some(GlissParam::SawAmplitudeRandomness)
+            }
+            GlissParam::SawPeriods => {
+                Some(GlissParam::SawPeriodsRandomness)
+            },
+            GlissParam::SawPhase => {
+                Some(GlissParam::SawPhaseRandomness)
+            },
+            _ => None,
+
+        }
+    }
+
     pub fn get_config(&self) -> ParamConfig {
         match self {
-            GlissParam::BendDuration => ParamConfig::new(0.03, 8.0, 2.0, Nano::SECOND, "Bend Time"),
-            GlissParam::HoldDuration => ParamConfig::new(0.10, 8.0, 1.0, Nano::SECOND, "Hold Time"),
-            // TODO categorical parameters dont fit this pattern well
-            GlissParam::BendMapping => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Mapping"),
-            // TODO categorical parameters dont fit this pattern well
-            GlissParam::BendPath => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Path"),
-            // TODO figure out the proper scalar for a semitone
-            GlissParam::BendPathAmplitude => {
-                ParamConfig::new(0.0, 12.0, 4.0, 8192.0 / PITCH_BEND_RANGE as f64, "Amplitude")
+            GlissParam::BendDuration => {
+                let min = 0.03;
+                let max = 8.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: Nano::SECOND,
+                    speed: (max - min) / 100.0,
+                    unit: "secs", 
+                    ui_name: "Bend Time",
+                    daw_name: "Bend Duration",
+                    daw_display: &|value| format!("{:.2} secs", value),
+                }
             }
-            GlissParam::BendPathPeriods => ParamConfig::new(0.0, 20.0, 2.0, 1.0, "Periods"),
-            GlissParam::BendPathSCurveSharpness => ParamConfig::new(1.0, 5.0, 2.0, 1.0, "Sharpness"),
-            GlissParam::BendPathPhase => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Phase"),
+            GlissParam::HoldDuration => {
+                let min = 0.10;
+                let max = 8.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 1.0,
+                    ui_to_gliss_scalar: Nano::SECOND,
+                    speed: (max - min) / 100.0,
+                    unit: "secs", 
+                    ui_name: "Hold Time",
+                    daw_name: "Hold Duration",
+                    daw_display: &|value| format!("{:.2} secs", value),
+                }
+            }
+            GlissParam::BendMapping => {
+                let min = 0.0;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "N/A", 
+                    ui_name: "Mapping",
+                    daw_name: "Mapping",
+                    daw_display: &|value| format!("{:?}", ChordMap::from_f32(value)),
+                }
+            }
+            GlissParam::BendPath => {
+                let min = 0.0;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "N/A", 
+                    ui_name: "Path",
+                    daw_name: "Path",
+                    daw_display: &|value| format!("{:?}", Path::from_f32(value)),
+                }
+            }
+            GlissParam::SCurveSharpness => {
+                let min = 1.0;
+                let max = 5.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Sharpness",
+                    daw_name: "S-Curve Sharpness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SCurveSharpnessRandomness => {
+                let min = 0.0;
+                let max = 5.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase Randomness",
+                    daw_name: "Sin Phase Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SinAmplitude => {
+                let min = 0.0;
+                let max = 12.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 4.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude",
+                    daw_name: "Sin Amplitude",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::SinAmplitudeRandomness => {
+                let min = 0.0;
+                let max = 6.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude Randomness",
+                    daw_name: "Sin Amplitude Randomness",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::SinPeriods => {
+                let min = 0.0;
+                let max = 20.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods",
+                    daw_name: "Sin Periods",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SinPeriodsRandomness => {
+                let min = 0.0;
+                let max = 10.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods Randomness",
+                    daw_name: "Sin Periods Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SinPhase => {
+                let min = 0.0;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase",
+                    daw_name: "Sin Phase",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SinPhaseRandomness => {
+                let min = 0.0;
+                let max = 5.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase Randomness",
+                    daw_name: "Sin Phase Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::TriangleAmplitude => {
+                let min = 0.0;
+                let max = 12.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 4.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude",
+                    daw_name: "Triangle Amplitude",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::TriangleAmplitudeRandomness => {
+                let min = 0.0;
+                let max = 6.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude Randomness",
+                    daw_name: "Triangle Amplitude Randomness",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::TrianglePeriods => {
+                let min = 0.0;
+                let max = 20.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods",
+                    daw_name: "Triangle Periods",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::TrianglePeriodsRandomness => {
+                let min = 0.0;
+                let max = 10.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods Randomness",
+                    daw_name: "Triangle Periods Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::TrianglePhase => {
+                let min = 0.0;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase",
+                    daw_name: "Triangle Phase",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::TrianglePhaseRandomness => {
+                let min = 0.0;
+                let max = 5.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase Randomness",
+                    daw_name: "Triangle Phase Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SawAmplitude => {
+                let min = 0.0;
+                let max = 12.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 4.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude",
+                    daw_name: "Saw Amplitude",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::SawAmplitudeRandomness => {
+                let min = 0.0;
+                let max = 6.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Amplitude Randomness",
+                    daw_name: "Saw Amplitude Randomness",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
+            GlissParam::SawPeriods => {
+                let min = 0.0;
+                let max = 20.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods",
+                    daw_name: "Saw Periods",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SawPeriodsRandomness => {
+                let min = 0.0;
+                let max = 10.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods Randomness",
+                    daw_name: "Saw Periods Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SawPhase => {
+                let min = 0.0;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase",
+                    daw_name: "Saw Phase",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::SawPhaseRandomness => {
+                let min = 0.0;
+                let max = 5.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Phase Randomness",
+                    daw_name: "Saw Phase Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::StepPeriods => {
+                let min = 0.0;
+                let max = 20.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 2.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods",
+                    daw_name: "Step Periods",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
+            GlissParam::StepPeriodsRandomness => {
+                let min = 0.0;
+                let max = 10.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.0,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "", 
+                    ui_name: "Periods Randomness",
+                    daw_name: "Step Periods Randomness",
+                    daw_display: &|value| format!("{:.2}", value),
+                }
+            }
         }
     }
 }
 
 fn get_parameter_index(parameter: GlissParam) -> usize {
-    match parameter {
-        GlissParam::BendDuration => 0,
-        GlissParam::HoldDuration => 1,
-        GlissParam::BendMapping => 2,
-        GlissParam::BendPath => 3,
-        GlissParam::BendPathAmplitude => 4,
-        GlissParam::BendPathPeriods => 5,
-        GlissParam::BendPathSCurveSharpness => 6,
-        GlissParam::BendPathPhase => 7,
-    }
+    GLISS_PARAMETERS
+        .iter()
+        .position(|&p| p == parameter)
+        .expect("parameter in parameters")
+    // TODO this is more efficent?
+    //    match parameter {
+    //        GlissParam::BendDuration => 0,
+    //        GlissParam::HoldDuration => 1,
+    //        ...
+    //    }
 }
 
 pub struct EditorState {
@@ -114,7 +565,7 @@ impl Default for EditorState {
         let init_time = std::time::Instant::now();
         EditorState {
             // TODO i dont think we need to clone anymore
-            params: Arc::new(ParameterTransfer::new(8)),
+            params: Arc::new(ParameterTransfer::new(26)),
             editor_params: Arc::new(Mutex::new(vec![])),
             chord_bender: Arc::new(Mutex::new(ChordBender::new(
                 init_time,
@@ -162,14 +613,17 @@ impl EditorState {
     }
 
     pub fn set_parameters_to_default(&self) {
-        self.set_parameter_to_default(GlissParam::BendDuration);
-        self.set_parameter_to_default(GlissParam::HoldDuration);
-        self.set_parameter_to_default(GlissParam::BendMapping);
-        self.set_parameter_to_default(GlissParam::BendPath);
-        self.set_parameter_to_default(GlissParam::BendPathAmplitude);
-        self.set_parameter_to_default(GlissParam::BendPathPeriods);
-        self.set_parameter_to_default(GlissParam::BendPathSCurveSharpness);
-        self.set_parameter_to_default(GlissParam::BendPathPhase);
+        for param in GLISS_PARAMETERS {
+            self.set_parameter_to_default(param);
+        }
+        //        self.set_parameter_to_default(GlissParam::BendDuration);
+        //        self.set_parameter_to_default(GlissParam::HoldDuration);
+        //        self.set_parameter_to_default(GlissParam::BendMapping);
+        //        self.set_parameter_to_default(GlissParam::BendPath);
+        //        self.set_parameter_to_default(GlissParam::BendPathAmplitude);
+        //        self.set_parameter_to_default(GlissParam::BendPathPeriods);
+        //        self.set_parameter_to_default(GlissParam::BendPathSCurveSharpness);
+        //        self.set_parameter_to_default(GlissParam::BendPathPhase);
     }
 }
 
@@ -195,31 +649,34 @@ impl PluginParameters for EditorState {
     }
 
     fn get_parameter_text(&self, index: i32) -> String {
-        match index {
-            0 => format!("{:.2} secs", self.params.get_parameter(0)),
-            1 => format!("{:.2} secs", self.params.get_parameter(1)),
-            2 => format!("{:?}", ChordMap::from_f32(self.params.get_parameter(2))),
-            3 => format!("{:?}", Path::from_f32(self.params.get_parameter(3))),
-            4 => format!("{:.2} semitones", self.params.get_parameter(4)),
-            5 => format!("{:.2} periods", self.params.get_parameter(5)),
-            6 => format!("{:.2}", self.params.get_parameter(6)),
-            7 => format!("{:.2}", self.params.get_parameter(7)),
-            _ => "".to_string(),
-        }
+        let value = self.params.get_parameter(index as usize);
+        (GLISS_PARAMETERS[index as usize].get_config().daw_display)(value)
+//        match index {
+//            0 => format!("{:.2} secs", self.params.get_parameter(0)),
+//            1 => format!("{:.2} secs", self.params.get_parameter(1)),
+//            2 => format!("{:?}", ChordMap::from_f32(self.params.get_parameter(2))),
+//            3 => format!("{:?}", Path::from_f32(self.params.get_parameter(3))),
+//            4 => format!("{:.2} semitones", self.params.get_parameter(4)),
+//            5 => format!("{:.2} periods", self.params.get_parameter(5)),
+//            6 => format!("{:.2}", self.params.get_parameter(6)),
+//            7 => format!("{:.2}", self.params.get_parameter(7)),
+//            _ => "".to_string(),
+//        }
     }
 
     fn get_parameter_name(&self, index: i32) -> String {
-        match index {
-            0 => "Bend Duration",
-            1 => "Hold Duration",
-            2 => "Bend Mapping",
-            3 => "Bend Path",
-            4 => "Bend Path Amplitude",
-            5 => "Bend Path Periods",
-            6 => "Bend Path S-Curve Sharpness",
-            7 => "Bend Path Phase",
-            _ => "",
-        }
-        .to_string()
+        GLISS_PARAMETERS[index as usize].get_config().daw_name.to_string()
+        //        match index {
+        //            0 => "Bend Duration",
+        //            1 => "Hold Duration",
+        //            2 => "Bend Mapping",
+        //            3 => "Bend Path",
+        //            4 => "Bend Path Amplitude",
+        //            5 => "Bend Path Periods",
+        //            6 => "Bend Path S-Curve Sharpness",
+        //            7 => "Bend Path Phase",
+        //            _ => "",
+        //        }
+        //        .to_string()
     }
 }

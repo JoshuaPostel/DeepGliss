@@ -4,7 +4,7 @@ use vst::event::MidiEvent;
 
 use crate::midi::bender::{Bender, RenderedBender};
 use crate::midi::mapper::ChordMapper;
-use crate::midi::paths::{BendPathBuilder, BendPath, Path};
+use crate::midi::paths::{BendPathBuilder, BendPath};
 use crate::midi::Note;
 use crate::GLISS_EPOCH;
 

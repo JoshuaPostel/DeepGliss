@@ -1,5 +1,7 @@
 use rand::Rng;
 
+use crate::state::GlissParam::*;
+use crate::EditorState;
 use crate::midi::Bend;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -66,9 +68,69 @@ impl Default for BendPathBuilder {
             phase_randomness: 0.0
         }
     }
+
 }
 
 impl BendPathBuilder {
+
+    pub fn from_state(state: &EditorState) -> Self {
+        let path = Path::from_f32(state.get_parameter(BendPath));
+        let mut amplitude = 0.0;
+        let mut amplitude_randomness = 0.0;
+        let mut periods = 0.0;
+        let mut periods_randomness = 0.0;
+        let mut phase = 0.0;
+        let mut phase_randomness = 0.0;
+        let mut s_curve_sharpness = 0.0;
+        let mut s_curve_sharpness_randomness = 0.0;
+
+        match path {
+            Path::SCurve => {
+                s_curve_sharpness = state.get_gliss_parameter(SCurveSharpness);
+                s_curve_sharpness_randomness = state.get_gliss_parameter(SCurveSharpnessRandomness);
+            },
+            Path::Step => {
+                periods = state.get_gliss_parameter(StepPeriods);
+                periods_randomness = state.get_gliss_parameter(StepPeriodsRandomness);
+            },
+            Path::Sin => {
+                amplitude = state.get_gliss_parameter(SinAmplitude);
+                amplitude_randomness = state.get_gliss_parameter(SinAmplitudeRandomness);
+                periods = state.get_gliss_parameter(SinPeriods);
+                periods_randomness = state.get_gliss_parameter(SinPeriodsRandomness);
+                phase = state.get_gliss_parameter(SinPhase);
+                phase_randomness = state.get_gliss_parameter(SinPhaseRandomness);
+            },
+            Path::Triangle => {
+                amplitude = state.get_gliss_parameter(TriangleAmplitude);
+                amplitude_randomness = state.get_gliss_parameter(TriangleAmplitudeRandomness);
+                periods = state.get_gliss_parameter(TrianglePeriods);
+                periods_randomness = state.get_gliss_parameter(TrianglePeriodsRandomness);
+                phase = state.get_gliss_parameter(TrianglePhase);
+                phase_randomness = state.get_gliss_parameter(TrianglePhaseRandomness);
+            },
+            Path::Saw => {
+                amplitude = state.get_gliss_parameter(SawAmplitude);
+                amplitude_randomness = state.get_gliss_parameter(SawAmplitudeRandomness);
+                periods = state.get_gliss_parameter(SawPeriods);
+                periods_randomness = state.get_gliss_parameter(SawPeriodsRandomness);
+                phase = state.get_gliss_parameter(SawPhase);
+                phase_randomness = state.get_gliss_parameter(SawPhaseRandomness);
+            },
+            Path::Linear => (),
+        }
+        Self {
+            path: Some(path),
+            amplitude,
+            amplitude_randomness,
+            periods,
+            periods_randomness,
+            s_curve_sharpness,
+            s_curve_sharpness_randomness,
+            phase,
+            phase_randomness,
+        }
+    }
 
     pub fn build(&self) -> BendPath {
 
@@ -87,46 +149,6 @@ impl BendPathBuilder {
         }
     }
 }
-
-//#[derive(Debug, Clone)]
-//pub struct BendPathBuilder {
-//    // where None representes random
-//    pub path: Option<Path>,
-//    pub amplitude_range: RangeInclusive<f64>,
-//    pub periods_range: RangeInclusive<f64>,
-//    pub s_curve_sharpness_range: RangeInclusive<f64>,
-//}
-//
-//impl Default for BendPathBuilder {
-//    fn default() -> Self {
-//        // made to match BendPath.default()
-//        Self {
-//            path: Some(Path::default()),
-//            amplitude_range: 500.0..=500.0,
-//            periods_range: 2.0..=2.0,
-//            s_curve_sharpness_range: 2.0..=2.0,
-//        }
-//    }
-//}
-//
-//impl BendPathBuilder {
-//
-//    pub fn build(&self) -> BendPath {
-//
-//        let mut rng = rand::thread_rng();
-//        let path = match self.path {
-//            Some(p) => p,
-//            None => Path::from_f32(rng.gen()),
-//        };
-//
-//        BendPath {
-//            path,
-//            amplitude: rng.gen_range(self.amplitude_range),
-//            periods: rng.gen_range(self.periods_range),
-//            s_curve_beta: rng.gen_range(self.s_curve_sharpness_range),
-//        }
-//    }
-//}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BendPath {
