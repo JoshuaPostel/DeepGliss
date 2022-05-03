@@ -566,7 +566,7 @@ impl Default for EditorState {
         EditorState {
             // TODO i dont think we need to clone anymore
             params: Arc::new(ParameterTransfer::new(26)),
-            editor_params: Arc::new(Mutex::new(vec![])),
+            editor_params: Arc::new(Mutex::new(vec![GlissParam::SCurveSharpness])),
             chord_bender: Arc::new(Mutex::new(ChordBender::new(
                 init_time,
                 Nano::SECOND * 2.0,
