@@ -71,19 +71,19 @@ impl ParamConfig {
 impl GlissParam {
     pub fn get_config(&self) -> ParamConfig {
         match self {
-            GlissParam::BendDuration => ParamConfig::new(0.03, 8.0, 2.0, Nano::SECOND, "B"),
-            GlissParam::HoldDuration => ParamConfig::new(0.10, 8.0, 1.0, Nano::SECOND, "D"),
+            GlissParam::BendDuration => ParamConfig::new(0.03, 8.0, 2.0, Nano::SECOND, "Bend Time"),
+            GlissParam::HoldDuration => ParamConfig::new(0.10, 8.0, 1.0, Nano::SECOND, "Hold Time"),
             // TODO categorical parameters dont fit this pattern well
-            GlissParam::BendMapping => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "M"),
+            GlissParam::BendMapping => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Mapping"),
             // TODO categorical parameters dont fit this pattern well
-            GlissParam::BendPath => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "P"),
+            GlissParam::BendPath => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Path"),
             // TODO figure out the proper scalar for a semitone
             GlissParam::BendPathAmplitude => {
-                ParamConfig::new(0.0, 12.0, 4.0, 8192.0 / PITCH_BEND_RANGE as f64, "A")
+                ParamConfig::new(0.0, 12.0, 4.0, 8192.0 / PITCH_BEND_RANGE as f64, "Amplitude")
             }
-            GlissParam::BendPathPeriods => ParamConfig::new(0.0, 20.0, 2.0, 1.0, "P"),
-            GlissParam::BendPathSCurveSharpness => ParamConfig::new(1.0, 5.0, 2.0, 1.0, "S"),
-            GlissParam::BendPathPhase => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Z"),
+            GlissParam::BendPathPeriods => ParamConfig::new(0.0, 20.0, 2.0, 1.0, "Periods"),
+            GlissParam::BendPathSCurveSharpness => ParamConfig::new(1.0, 5.0, 2.0, 1.0, "Sharpness"),
+            GlissParam::BendPathPhase => ParamConfig::new(0.0, 1.0, 0.0, 1.0, "Phase"),
         }
     }
 }
@@ -103,6 +103,7 @@ fn get_parameter_index(parameter: GlissParam) -> usize {
 
 pub struct EditorState {
     pub params: Arc<ParameterTransfer>,
+    pub editor_params: Arc<Mutex<Vec<GlissParam>>>,
     pub chord_bender: Arc<Mutex<ChordBender>>,
     pub rendered_benders: Arc<Mutex<RenderedBenders>>,
     pub keyboard_focus: Arc<Mutex<Option<Path>>>,
@@ -114,6 +115,7 @@ impl Default for EditorState {
         EditorState {
             // TODO i dont think we need to clone anymore
             params: Arc::new(ParameterTransfer::new(8)),
+            editor_params: Arc::new(Mutex::new(vec![])),
             chord_bender: Arc::new(Mutex::new(ChordBender::new(
                 init_time,
                 Nano::SECOND * 2.0,

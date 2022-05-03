@@ -264,7 +264,6 @@ impl BendPath {
 
         let phase_adj = amplitude * (periods * std::f64::consts::TAU * (phase)).sin();
         let sin_adj = amplitude * (periods * std::f64::consts::TAU * (t + phase)).sin() - phase_adj;
-        //let sin_adj = amplitude * (periods * std::f64::consts::TAU * (t + phase)).sin();
         log::debug!("sin_adj: {sin_adj}");
 
         amount + sin_adj

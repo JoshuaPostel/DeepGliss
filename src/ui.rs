@@ -1,11 +1,12 @@
 use crate::draw::piano;
 use crate::draw::timeline::Timeline;
+use crate::draw::parameter_editor::draw_parameter_editor;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
 use crate::state::EditorState;
 use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase,
+    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness, BendPathPhase, HoldDuration, BendDuration,
 };
 
 use std::sync::Arc;
@@ -77,7 +78,8 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                 let y2 = 75.0;
                 ui.vertical(|ui| {
                     ui.label("Bend Mapping");
-                    ui.add_space(110.0);
+                    // determins start of timeline
+                    ui.add_space(70.0);
                     ui.horizontal(|ui| {
                         let val = ChordMap::from_f32(state.get_parameter(BendMapping));
                         // v1
@@ -368,6 +370,13 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
 
                 // TODO add dark and light mode?
                 //egui::widgets::global_dark_light_mode_switch(ui);
+                ui.vertical(|ui| {
+                    ui.label("Parameters");
+                    let parameter_editor_rect = Rect::from_x_y_ranges(600.0..=900.0, 15.0..=150.0);
+
+                    let editor_params = state.editor_params.lock().unwrap();
+                    draw_parameter_editor(ui, state, editor_params.to_vec(), parameter_editor_rect);
+                });
             });
 
             // ui layout

@@ -161,6 +161,13 @@ impl Timeline {
         }
         ui.painter().add(pin_cone_shape);
         ui.painter().add(pin_circle_shape);
+        if pin_response.dragged() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = vec![BendDuration, HoldDuration];
+        }
+        if pin_response.double_clicked() {
+            state.set_parameter_to_default(BendDuration)
+        }
     }
 
     // TODO rename some variables and refactor to stay DRY
@@ -209,5 +216,12 @@ impl Timeline {
         }
         ui.painter().add(connecting_line);
         ui.painter().add(pin_circle_shape);
+        if pin_response.dragged() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = vec![BendDuration, HoldDuration];
+        }
+        if pin_response.double_clicked() {
+            state.set_parameter_to_default(HoldDuration)
+        }
     }
 }

@@ -26,9 +26,6 @@
 ## UI
 * flip keyboard so that low notes are at bottom and high notes at top
 * render notes differently based on `note.new_note_on`
-* `bend_duration` and `hold_duration`
-  * add keyboard edit like the bend path buttons
-  * add default reset like the bend path buttons 
 * display measure bars on timeline
 
 ## DEBUG
@@ -40,6 +37,7 @@
 * saw bend weird behavior when period between 5 and 6
 
 ## FEATURE
+* bezier curve bend path
 * `n_channels` setting:
   * `= n_notes`
   * `= max (16)`
