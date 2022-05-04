@@ -37,12 +37,17 @@ pub fn draw_parameter_editor(ui: &mut Ui, state: &Arc<EditorState>, params: Vec<
                 Pos2::new(text_max_x_location + 85.0, to_rect.min.y + (i * 20.0) + 7.5),
                 Pos2::new(text_max_x_location + 135.0, to_rect.min.y + (i * 20.0) + 7.5),
             );
+            let percision = if config.is_integer {
+                0
+            } else {
+                2
+            };
             let edit_response = ui.put(
                 edit_rect,
                 egui::DragValue::new(&mut val)
                     .clamp_range(config.min..=config.max)
                     .speed(config.speed)
-                    .fixed_decimals(2),
+                    .fixed_decimals(percision),
             );
             if let Some(randomness_param) =  param.get_randomness_param() {
                 ui.put(

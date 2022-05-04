@@ -3,7 +3,6 @@
 ## FEATURES
 * implement phase for saw and triangle
 * parameters
-  * periods parameter should be floored
   * chord capture time
   * `PITCH_BEND_RANGE`
 
