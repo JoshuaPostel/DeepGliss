@@ -374,7 +374,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                 //egui::widgets::global_dark_light_mode_switch(ui);
                 ui.vertical(|ui| {
                     ui.label("Parameters");
-                    let parameter_editor_rect = Rect::from_x_y_ranges(602.0..=900.0, 15.0..=150.0);
+                    let parameter_editor_rect = Rect::from_x_y_ranges(630.0..=900.0, 15.0..=150.0);
 
                     let editor_params = state.editor_params.lock().unwrap();
                     draw_parameter_editor(ui, state, editor_params.to_vec(), parameter_editor_rect);
