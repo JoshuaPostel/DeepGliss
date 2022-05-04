@@ -84,7 +84,6 @@ pub struct ChordBender {
     pub hold_duration: f64,
     pub chord_capture_duration: f64,
     pub chords: Vec<Chord>,
-    pub current_chord: usize,
     pub channels: Vec<Bender>,
     pub bend_path: BendPathBuilder,
     pub chord_mapper: ChordMapper,
@@ -108,7 +107,6 @@ impl ChordBender {
             // so use a different struct?
             // array or ringbuffer sort of thing?
             chords: vec![],
-            current_chord: 0,
             channels: vec![],
             bend_path: BendPathBuilder::default(),
             chord_mapper: ChordMapper::default(),
@@ -137,13 +135,6 @@ impl ChordBender {
         note.channel = channel;
         note.new_note_on = true;
         log::info!("new_channel called with bend_path: {bend_path:?}");
-//        let new_path = BendPath {
-//            path: Path::Linear,
-//            amplitude: bend_path.amplitude,
-//            periods: bend_path.periods,
-//            s_curve_beta: bend_path.s_curve_beta,
-//            phase: bend_path.phase,
-//        };
         let (bender, new_note_event) =
             Bender::new(note, now, bend_duration, hold_duration, bend_path);
             //Bender::new(note, now, bend_duration, hold_duration, new_path);
@@ -194,6 +185,7 @@ impl ChordBender {
                     }
                 }
             }
+            // TODO this is not midi note on, what is it?
             // midi note on
             128..=143 => match self.chords.last_mut() {
                 None => (),
@@ -237,14 +229,19 @@ impl ChordBender {
         // for testing how total randomness sounds
         //self.bend_path.path = None;
 
+        let (bend_duration, hold_duration) = if target_note_indicies.is_empty() {
+            (self.hold_duration, 0.0)
+        } else {
+            (self.bend_duration, self.hold_duration)
+        };
         for new_note_idx in new_note_indicies {
             if let Some((new_midi_event, renderable)) = ChordBender::new_channel(
                 &mut self.channels,
                 &mut chord.notes[new_note_idx],
                 now,
-                self.bend_duration,
-                self.hold_duration,
-                self.bend_path.build(),
+                bend_duration,
+                hold_duration,
+                BendPath::default(),
             ) {
                 //new_midi_events.push(new_midi_event);
                 midi_events.push(new_midi_event);

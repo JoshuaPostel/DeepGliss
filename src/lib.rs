@@ -174,15 +174,6 @@ impl Plugin for Gliss {
         chord_bender.chord_mapper.chord_map =
             ChordMap::from_f32(self.state.get_parameter(BendMapping));
         chord_bender.bend_path = BendPathBuilder::from_state(&self.state);
-//        self.state.get_gliss_parameter(BendPath)
-//        chord_bender.bend_path = BendPathBuilder {
-//
-//        }
-//        chord_bender.bend_path.amplitude = self.state.get_gliss_parameter(BendPathAmplitude);
-//        chord_bender.bend_path.periods = self.state.get_gliss_parameter(BendPathPeriods);
-//        chord_bender.bend_path.s_curve_sharpness =
-//            self.state.get_gliss_parameter(BendPathSCurveSharpness);
-//        chord_bender.bend_path.path = Some(Path::from_f32(self.state.get_parameter(BendPath)));
 
         let (events, new_rendered_benders) = chord_bender.bend(host_time);
 

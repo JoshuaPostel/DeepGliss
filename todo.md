@@ -10,14 +10,6 @@
   * periods parameter should be floored
   * chord capture time
 
-## FUNCTIONALITY
-* first note should not have a bend of zero
-  * do we want new notes durring a bend to have Path::Linear or to also bend?
-    * only relevant for Path::
-      * sin
-      * saw
-      * triangle
-
 ## INTERNAL CODE
 * TODO comments
   * read through
@@ -26,6 +18,9 @@
 * clean up and rename `daw_time`/`ui_time`
 * remove `allow(dead_code)`
   * revisit bin + lib crate approach to UI iteration
+
+## UI  
+* 15 colors
 
 ## DEMO
 * replicate something close to DeepNote using gliss

@@ -58,7 +58,7 @@ impl Default for BendPathBuilder {
         // made to match BendPath.default()
         Self {
             path: Some(Path::default()),
-            amplitude: 500.0,
+            amplitude: 0.0,
             amplitude_randomness: 0.0,
             periods: 2.0,
             periods_randomness: 0.0,
@@ -164,7 +164,7 @@ impl Default for BendPath {
     fn default() -> BendPath {
         BendPath {
             path: Path::default(),
-            amplitude: 500.0,
+            amplitude: 0.0,
             periods: 2.0,
             s_curve_beta: 2.0,
             phase: 0.0,
