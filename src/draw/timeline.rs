@@ -86,9 +86,7 @@ impl Timeline {
     }
 
     fn draw_whole_note(&self, now: Duration, note: Note) -> Option<Shape> {
-        log::debug!("time debug - now: {:?}", now);
-        log::debug!("time debug - note: {:?}", note);
-        let relative_note = note.midi_number - self.midi_notes.start;
+        let relative_note = self.midi_notes.end - note.midi_number - 1;
         let stroke = Stroke::new(self.line_spacing_absolute / 7.5, Color32::WHITE);
         if let Some(end_time) = now.checked_sub(self.history_duration) {
             let draw_time: Duration = if note.new_note_on {

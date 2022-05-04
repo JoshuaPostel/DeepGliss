@@ -1,14 +1,22 @@
 # TODO before sharing/promoting
 
-## DEMO
-* replicate something close to DeepNote using gliss
-
 ## DEBUG
 * plugin crashes on bend > 24 semitones
   * adjustable `PITCH_BEND_RANGE`
 
+## FEATURES
+* implement phase for saw and triangle
+* parameters
+  * periods parameter should be floored
+  * chord capture time
+
 ## FUNCTIONALITY
 * first note should not have a bend of zero
+  * do we want new notes durring a bend to have Path::Linear or to also bend?
+    * only relevant for Path::
+      * sin
+      * saw
+      * triangle
 
 ## INTERNAL CODE
 * TODO comments
@@ -19,10 +27,12 @@
 * remove `allow(dead_code)`
   * revisit bin + lib crate approach to UI iteration
 
+## DEMO
+* replicate something close to DeepNote using gliss
+
 # TODO Backlog
 
 ## UI
-* flip keyboard so that low notes are at bottom and high notes at top
 * display measure bars on timeline
 
 ## DEBUG
@@ -33,7 +43,7 @@
 * at on note events, one low pitch bend event is sent which should not be there
 * saw bend weird behavior when period between 5 and 6
 
-## FEATURE
+## FEATURES
 * bezier curve bend path
 * `n_channels` setting:
   * `= n_notes`
@@ -44,20 +54,9 @@
 
 ## TESTS
 * plan out how to reproduce and add test cases for user feedback
-* for `get_mapping` variations
 
 ## POLISH
 * investigate ways to mitigate beating
-* parameters
-  * periods parameter should be floored
-  * chord capture time
-
-## DECISIONS
-* do we want new notes durring a bend to have Path::Linear or to also bend?
-  * only relevant for Path::
-    * sin
-    * saw
-    * triangle
 
 ## LICENCE
 * figure out what licence to publish under

@@ -409,11 +409,13 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             let midi_notes = timeline.midi_notes;
             let min_midi = midi_notes.clone().min().unwrap() as f32;
             let max_midi = midi_notes.max().unwrap() as f32;
-            let midi_range = min_midi - 0.5..=max_midi + 0.5;
+            //let midi_range = min_midi - 0.5..=max_midi + 0.5;
             let start_time = (ui_now - timeline.history_duration).as_secs_f32();
             let end_time = (ui_now + timeline.bend_duration).as_secs_f32();
-            let time_range = start_time..=end_time;
-            let midi_number_x_time = Rect::from_x_y_ranges(time_range, midi_range);
+            //let time_range = start_time..=end_time;
+            // TODO reimplement logic in correct orientation?
+            // flipping upsidedown
+            let midi_number_x_time = Rect::from_min_max(Pos2::new(start_time, max_midi + 0.5), Pos2::new(end_time, min_midi - 0.5));
             let midi_number_x_time_to_screen =
                 emath::RectTransform::from_to(midi_number_x_time, timeline_rect);
             let mut rendered_benders = state.rendered_benders.lock().unwrap();

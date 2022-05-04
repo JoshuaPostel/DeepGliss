@@ -12,7 +12,8 @@ pub fn draw(rect: Rect, octive_range: RangeInclusive<u8>, active_notes: Vec<u8>)
     let mut shapes = vec![];
 
     let octave_height = (rect.max.y - rect.min.y) / octive_range.len() as f32;
-    for (i, octave) in octive_range.enumerate() {
+    // flipped y because egui origin is top left
+    for (i, octave) in octive_range.rev().enumerate() {
         let mut active_octave_notes = vec![];
         let octave_midi_notes = ((octave + 1) * 12)..((octave + 2) * 12);
         for note in &active_notes {
@@ -52,8 +53,10 @@ pub fn draw_octave(rect: Rect, active_notes: Vec<u8>) -> Vec<Shape> {
     let key_height = (rect.max.y - rect.min.y) / 12.0;
 
     for (i, color) in colors.iter().enumerate() {
-        let top_left = Pos2::new(rect.min.x, rect.min.y + i as f32 * key_height);
-        let bot_right = Pos2::new(rect.max.x, rect.min.y + (1.0 + i as f32) * key_height - 2.0);
+        // flipped y because egui origin is top left
+        let top_left = Pos2::new(rect.min.x, rect.max.y - i as f32 * key_height);
+        let bot_right = Pos2::new(rect.max.x, rect.max.y - (1.0 + i as f32) * key_height + 2.0);
+
         let key_rect = Rect::from_two_pos(top_left, bot_right);
         //let key = draw_key(key_rect, *color);
         //keys.push(key);
