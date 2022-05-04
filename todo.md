@@ -1,7 +1,6 @@
 # TODO before sharing/promoting
 
 ## FEATURES
-* implement phase for saw and triangle
 * parameters
   * chord capture time
   * `PITCH_BEND_RANGE`

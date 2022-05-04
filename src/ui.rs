@@ -312,6 +312,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         1.0,
                                         state.get_gliss_parameter(TriangleAmplitude) / 1_000.0,
                                         state.get_gliss_parameter(TrianglePeriods),
+                                        state.get_gliss_parameter(TrianglePhase),
                                         // TODO
                                         //state.get_gliss_parameter(SinPhase),
                                     ) as f32,
@@ -350,6 +351,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         1.0,
                                         state.get_gliss_parameter(SawAmplitude) / 1_000.0,
                                         state.get_gliss_parameter(SawPeriods),
+                                        state.get_gliss_parameter(SawPhase),
                                         // TODO
                                         //state.get_gliss_parameter(SinPhase),
                                     ) as f32,

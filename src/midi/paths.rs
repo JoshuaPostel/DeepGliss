@@ -215,6 +215,7 @@ impl BendPath {
                 target_bend,
                 self.amplitude,
                 self.periods,
+                self.phase,
             ) as u16),
             Path::Saw => Bend(BendPath::get_saw_bend(
                 time,
@@ -224,6 +225,7 @@ impl BendPath {
                 target_bend,
                 self.amplitude,
                 self.periods,
+                self.phase,
             ) as u16),
             Path::SCurve => Bend(BendPath::get_s_curve_bend(
                 time,
@@ -291,6 +293,7 @@ impl BendPath {
         amount + sin_adj
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn get_triangle_bend(
         time: f64,
         start_time: f64,
@@ -299,6 +302,7 @@ impl BendPath {
         target_bend: f64,
         amplitude: f64,
         periods: f64,
+        phase: f64,
     ) -> f64 {
         // same as linear bend
         let t = (time - start_time) / (stop_time - start_time);
@@ -308,14 +312,18 @@ impl BendPath {
         let t = (2.0 * t) - 1.0;
         let p = 2.0 / periods;
         log::debug!("p: {p}");
-        let triangle_adj = ((4.0 * amplitude / p)
-            * (((t - (p / 4.0)).rem_euclid(p)) - (p / 2.0)).abs())
+        let phase_adj = ((4.0 * amplitude / p)
+            * (((phase - (p / 4.0)).rem_euclid(p)) - (p / 2.0)).abs())
             - amplitude;
+        let triangle_adj = (((4.0 * amplitude / p)
+            * (((t + phase - (p / 4.0)).rem_euclid(p)) - (p / 2.0)).abs())
+            - amplitude) - phase_adj;
         log::debug!("triangle_adj: {triangle_adj}");
 
         amount + triangle_adj
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn get_saw_bend(
         time: f64,
         start_time: f64,
@@ -324,6 +332,7 @@ impl BendPath {
         target_bend: f64,
         amplitude: f64,
         periods: f64,
+        phase: f64,
     ) -> f64 {
         // same as linear bend
         let t = (time - start_time) / (stop_time - start_time);
@@ -332,7 +341,8 @@ impl BendPath {
 
         let p = 1.0 / periods;
         log::debug!("p: {p}");
-        let saw_adj = amplitude * 2.0 * ((t / p) - ((t / p) + 0.5).floor());
+        let phase_adj = amplitude * 2.0 * ((phase / p) - ((phase / p) + 0.5).floor());
+        let saw_adj = amplitude * 2.0 * (((t + phase) / p) - (((t + phase) / p) + 0.5).floor()) - phase_adj;
         log::debug!("saw_adj: {saw_adj}");
 
         amount + saw_adj
