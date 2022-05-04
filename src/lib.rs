@@ -175,17 +175,23 @@ impl Plugin for Gliss {
             ChordMap::from_f32(self.state.get_parameter(BendMapping));
         chord_bender.bend_path = BendPathBuilder::from_state(&self.state);
 
-        let (events, new_rendered_benders) = chord_bender.bend(host_time);
+        match chord_bender.bend(host_time) {
+            Ok((events, new_rendered_benders)) => {
+                let mut rendered_benders = self.state.rendered_benders.lock().unwrap();
+                // TODO use new method
+                rendered_benders.append(new_rendered_benders);
 
-        let mut rendered_benders = self.state.rendered_benders.lock().unwrap();
-        // TODO use new method
-        rendered_benders.append(new_rendered_benders);
-
-        log::debug!(
-            "sending events: {:?}",
-            events.iter().map(|e| e.data).collect::<Vec<[u8; 3]>>()
-        );
-        self.send_buffer.send_events(&events, &mut self.host);
+                log::debug!(
+                    "sending events: {:?}",
+                    events.iter().map(|e| e.data).collect::<Vec<[u8; 3]>>()
+                );
+                self.send_buffer.send_events(&events, &mut self.host);
+            },
+            Err(e) => {
+                let mut error_state = self.state.error_state.lock().unwrap();
+                *error_state = Some(e);
+            },
+        }
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {

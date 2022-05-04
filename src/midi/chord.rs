@@ -204,7 +204,7 @@ impl ChordBender {
     }
 
     // TODO return Renerers
-    fn update_target_chord(&mut self, now: f64) -> (Vec<MidiEvent>, Vec<RenderedBender>) {
+    fn update_target_chord(&mut self, now: f64) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
         //fn update_target_chord(&mut self, now: f64) -> Vec<MidiEvent> {
         self.sort_channels();
         let mut chord = self.chords.last_mut().expect("chords to be non-enpty");
@@ -262,23 +262,23 @@ impl ChordBender {
                 self.bend_duration,
                 self.hold_duration,
                 self.bend_path.build(),
-            );
+            )?;
             renderables.push(renderable);
         }
 
         log::info!("done update_target_chord:\n{:?}", self);
-        (midi_events, renderables)
+        Ok((midi_events, renderables))
     }
 
     // TODO return Renerers
     //  -> (Vec<MidiEvent>, Vec<Renderable>) {
-    pub fn bend(&mut self, time: f64) -> (Vec<MidiEvent>, Vec<RenderedBender>) {
+    pub fn bend(&mut self, time: f64) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
         let mut events = vec![];
         let mut renderables = vec![];
 
         if let Some(chord) = self.chords.last() {
             if !chord.sent_to_bender && chord.done_capturing(time) {
-                let (mut new_events, mut new_renderables) = self.update_target_chord(time);
+                let (mut new_events, mut new_renderables) = self.update_target_chord(time)?;
                 events.append(&mut new_events);
                 renderables.append(&mut new_renderables);
             }
@@ -293,6 +293,6 @@ impl ChordBender {
         }
         //self.channels.retain(|&bender| bender.active);
         self.channels.retain(|bender| bender.active);
-        (events, renderables)
+        Ok((events, renderables))
     }
 }

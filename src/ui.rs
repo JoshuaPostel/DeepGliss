@@ -15,7 +15,8 @@ use egui_baseview::{EguiWindow, Queue, RenderSettings, Settings};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use vst::editor::Editor;
 
-use egui::{vec2, CtxRef, Pos2, Rect};
+use egui::{vec2, CtxRef, Pos2, Rect, Color32};
+use egui::widgets::Label;
 
 use crate::draw::button::{draw_linesegment, draw_map_button, draw_path_button};
 use crate::draw::theme::GLISS_THEME;
@@ -441,6 +442,12 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             shapes.append(&mut piano);
 
             ui.painter().extend(shapes);
+
+            // inform user of errors
+            if let Some(error_state) = &*state.error_state.lock().unwrap() {
+                let error_msg = Label::new(format!("error: {error_state}")).background_color(Color32::DARK_RED);
+                ui.add(error_msg);
+            }
         });
     }
 }

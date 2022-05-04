@@ -1,14 +1,17 @@
 # TODO before sharing/promoting
 
-## DEBUG
-* plugin crashes on bend > 24 semitones
-  * adjustable `PITCH_BEND_RANGE`
-
 ## FEATURES
 * implement phase for saw and triangle
 * parameters
   * periods parameter should be floored
   * chord capture time
+  * `PITCH_BEND_RANGE`
+
+## UI  
+* 15 colors
+
+## DEMO
+* replicate something close to DeepNote using gliss
 
 ## INTERNAL CODE
 * TODO comments
@@ -19,11 +22,9 @@
 * remove `allow(dead_code)`
   * revisit bin + lib crate approach to UI iteration
 
-## UI  
-* 15 colors
-
-## DEMO
-* replicate something close to DeepNote using gliss
+## POLISH
+* investigate chord bend on note press that causes popping
+* improve default values 
 
 # TODO Backlog
 

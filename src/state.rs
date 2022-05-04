@@ -558,6 +558,7 @@ pub struct EditorState {
     pub chord_bender: Arc<Mutex<ChordBender>>,
     pub rendered_benders: Arc<Mutex<RenderedBenders>>,
     pub keyboard_focus: Arc<Mutex<Option<Path>>>,
+    pub error_state: Arc<Mutex<Option<String>>>,
 }
 
 impl Default for EditorState {
@@ -575,6 +576,7 @@ impl Default for EditorState {
             ))),
             rendered_benders: Arc::new(Mutex::new(RenderedBenders::new())),
             keyboard_focus: Arc::new(Mutex::new(None)),
+            error_state: Arc::new(Mutex::new(None)),
         }
     }
 }

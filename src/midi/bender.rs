@@ -255,17 +255,17 @@ impl Bender {
         bend_duration: f64,
         hold_duration: f64,
         bend_path: BendPath,
-    ) -> RenderedBender {
+    ) -> Result<RenderedBender, String> {
         //log::info!("update_target called with target: {target:?}");
         //log::info!("pre update_target: {self:?}");
-        self.target_bend = self.note.bend_to(target).unwrap();
+        self.target_bend = self.note.bend_to(target)?;
         self.start_bend = self.current_bend;
         self.start_time = now;
         self.stop_time = now + bend_duration;
         self.note_off_time = now + bend_duration + hold_duration;
         self.bend_path = bend_path;
         log::info!("post update_target: {self:?}");
-        self.get_render()
+        Ok(self.get_render())
     }
 
     pub fn get_bend(&self, time: f64) -> Option<Bend> {
