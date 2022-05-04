@@ -8,7 +8,7 @@ use crate::midi::bender::RenderedBenders;
 use crate::midi::chord::ChordBender;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::Path;
-use crate::PITCH_BEND_RANGE;
+//use crate::PITCH_BEND_RANGE;
 
 struct Nano;
 
@@ -18,8 +18,10 @@ impl Nano {
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum GlissParam {
+    PitchBendRange,
     BendDuration,
     HoldDuration,
+    ChordCaptureDuration,
     BendMapping,
     BendPath,
     SCurveSharpness,
@@ -46,9 +48,11 @@ pub enum GlissParam {
     SawPhaseRandomness,
 }
 
-const GLISS_PARAMETERS: [GlissParam; 26] = [
+pub const GLISS_PARAMETERS: [GlissParam; 28] = [
+    GlissParam::PitchBendRange,
     GlissParam::BendDuration,
     GlissParam::HoldDuration,
+    GlissParam::ChordCaptureDuration,
     GlissParam::BendMapping,
     GlissParam::BendPath,
     GlissParam::SCurveSharpness,
@@ -80,6 +84,7 @@ pub struct ParamConfig {
     pub max: f64,
     pub default: f64,
     pub is_integer: bool,
+    pub is_semitone: bool,
     pub ui_to_gliss_scalar: f64,
     pub speed: f64,
     pub unit: &'static str, 
@@ -156,6 +161,23 @@ impl GlissParam {
 
     pub fn get_config(&self) -> ParamConfig {
         match self {
+            GlissParam::PitchBendRange => {
+                let min = 2.0;
+                let max = 48.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 24.0,
+                    is_integer: true,
+                    is_semitone: false,
+                    ui_to_gliss_scalar: 1.0,
+                    speed: (max - min) / 100.0,
+                    unit: "semitones", 
+                    ui_name: "Pitch Bend Range",
+                    daw_name: "Pitch Bend Range",
+                    daw_display: &|value| format!("{:.2} semitones", value),
+                }
+            }
             GlissParam::BendDuration => {
                 let min = 0.03;
                 let max = 8.0;
@@ -164,10 +186,11 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
                     speed: (max - min) / 100.0,
                     unit: "secs", 
-                    ui_name: "Bend Time",
+                    ui_name: "Bend Duration",
                     daw_name: "Bend Duration",
                     daw_display: &|value| format!("{:.2} secs", value),
                 }
@@ -180,11 +203,29 @@ impl GlissParam {
                     max,
                     default: 1.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
                     speed: (max - min) / 100.0,
                     unit: "secs", 
-                    ui_name: "Hold Time",
+                    ui_name: "Hold Duration",
                     daw_name: "Hold Duration",
+                    daw_display: &|value| format!("{:.2} secs", value),
+                }
+            }
+            GlissParam::ChordCaptureDuration => {
+                let min = 0.00001;
+                let max = 1.0;
+                ParamConfig {
+                    min,
+                    max,
+                    default: 0.2,
+                    is_integer: false,
+                    is_semitone: false,
+                    ui_to_gliss_scalar: Nano::SECOND,
+                    speed: (max - min) / 100.0,
+                    unit: "secs", 
+                    ui_name: "Chord Capture Time",
+                    daw_name: "Chord Capture Duration",
                     daw_display: &|value| format!("{:.2} secs", value),
                 }
             }
@@ -196,6 +237,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "N/A", 
@@ -212,6 +254,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "N/A", 
@@ -228,6 +271,7 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -244,6 +288,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -260,7 +305,8 @@ impl GlissParam {
                     max,
                     default: 4.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude",
@@ -276,7 +322,8 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude Randomness",
@@ -292,6 +339,7 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -308,6 +356,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -324,6 +373,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -340,6 +390,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -356,7 +407,8 @@ impl GlissParam {
                     max,
                     default: 4.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude",
@@ -372,7 +424,8 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude Randomness",
@@ -388,6 +441,7 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -404,6 +458,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -420,6 +475,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -436,6 +492,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -452,7 +509,8 @@ impl GlissParam {
                     max,
                     default: 4.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude",
@@ -468,7 +526,8 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
-                    ui_to_gliss_scalar: 8192.0 / PITCH_BEND_RANGE as f64,
+                    is_semitone: true,
+                    ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
                     speed: (max - min) / 100.0,
                     unit: "semitones", 
                     ui_name: "Amplitude Randomness",
@@ -484,6 +543,7 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -500,6 +560,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -516,6 +577,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -532,6 +594,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: false,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -548,6 +611,7 @@ impl GlissParam {
                     max,
                     default: 2.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -564,6 +628,7 @@ impl GlissParam {
                     max,
                     default: 0.0,
                     is_integer: true,
+                    is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
@@ -603,13 +668,14 @@ impl Default for EditorState {
         let init_time = std::time::Instant::now();
         EditorState {
             // TODO i dont think we need to clone anymore
-            params: Arc::new(ParameterTransfer::new(26)),
+            params: Arc::new(ParameterTransfer::new(GLISS_PARAMETERS.len())),
             editor_params: Arc::new(Mutex::new(vec![GlissParam::SCurveSharpness])),
             chord_bender: Arc::new(Mutex::new(ChordBender::new(
                 init_time,
-                Nano::SECOND * 2.0,
-                Nano::SECOND * 2.0,
-                Nano::SECOND / 5.0,
+                Nano::SECOND * GlissParam::BendDuration.get_config().default,
+                Nano::SECOND * GlissParam::HoldDuration.get_config().default,
+                GlissParam::PitchBendRange.get_config().default as f32,
+                Nano::SECOND * GlissParam::ChordCaptureDuration.get_config().default,
             ))),
             rendered_benders: Arc::new(Mutex::new(RenderedBenders::new())),
             keyboard_focus: Arc::new(Mutex::new(None)),
@@ -635,7 +701,11 @@ impl EditorState {
 
     pub fn get_gliss_parameter(&self, parameter: GlissParam) -> f64 {
         let config = parameter.get_config();
-        config.map_to_gliss(self.get_parameter(parameter))
+        if config.is_semitone {
+            config.map_to_gliss(self.get_parameter(parameter)) / self.get_gliss_parameter(GlissParam::PitchBendRange)
+        } else {
+            config.map_to_gliss(self.get_parameter(parameter))
+        }
     }
 
     pub fn set_parameter(&self, parameter: GlissParam, val: f64) {

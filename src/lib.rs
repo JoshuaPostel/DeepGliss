@@ -15,7 +15,7 @@ pub mod ui;
 
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::BendPathBuilder;
-use crate::state::EditorState;
+use crate::state::{EditorState, GLISS_PARAMETERS};
 use crate::state::GlissParam::*;
 use crate::ui::GlissEditor;
 
@@ -29,7 +29,7 @@ use vst::event::{Event, MidiEvent};
 use vst::plugin::{CanDo, Category, HostCallback, Info, Plugin, PluginParameters};
 
 //pub const PITCH_BEND_RANGE: u8 = 48;
-pub const PITCH_BEND_RANGE: u8 = 24;
+//pub const PITCH_BEND_RANGE: u8 = 24;
 
 lazy_static! {
     pub static ref GLISS_EPOCH: Duration = SystemTime::now()
@@ -103,7 +103,7 @@ impl Plugin for Gliss {
             version: 3,
             inputs: 2,
             outputs: 2,
-            parameters: 26,
+            parameters: GLISS_PARAMETERS.len() as i32,
             category: Category::Effect,
             midi_outputs: 1,
             ..Default::default()
@@ -171,6 +171,8 @@ impl Plugin for Gliss {
         let mut chord_bender = self.state.chord_bender.lock().unwrap();
         chord_bender.bend_duration = self.state.get_gliss_parameter(BendDuration);
         chord_bender.hold_duration = self.state.get_gliss_parameter(HoldDuration);
+        chord_bender.pitch_bend_range = self.state.get_gliss_parameter(PitchBendRange) as f32;
+        chord_bender.chord_capture_duration = self.state.get_gliss_parameter(ChordCaptureDuration);
         chord_bender.chord_mapper.chord_map =
             ChordMap::from_f32(self.state.get_parameter(BendMapping));
         chord_bender.bend_path = BendPathBuilder::from_state(&self.state);

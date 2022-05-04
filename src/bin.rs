@@ -27,7 +27,7 @@ lazy_static! {
 }
 
 //pub const PITCH_BEND_RANGE: u8 = 48;
-pub const PITCH_BEND_RANGE: u8 = 24;
+//pub const PITCH_BEND_RANGE: u8 = 24;
 
 fn main() {
     let state = Arc::new(EditorState::new());

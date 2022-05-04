@@ -157,6 +157,7 @@ pub struct Bender {
     pub target_bend: Bend,
     pub current_bend: Bend,
     pub bend_path: BendPath,
+    pub pitch_bend_range: f32,
 }
 
 impl Bender {
@@ -165,6 +166,7 @@ impl Bender {
         now: f64,
         bend_duration: f64,
         hold_duration: f64,
+        pitch_bend_range: f32,
         bend_path: BendPath,
     ) -> (Self, MidiEvent) {
         let bender = Self {
@@ -174,6 +176,7 @@ impl Bender {
             stop_time: now + bend_duration,
             note_off_time: now + bend_duration + hold_duration,
             bend_path,
+            pitch_bend_range,
             ..Default::default()
         };
 
@@ -191,8 +194,8 @@ impl Bender {
 
         let start_time = Duration::from_nanos(self.start_time as u64) - *GLISS_EPOCH;
         let stop_time = Duration::from_nanos(self.stop_time as u64) - *GLISS_EPOCH;
-        let continuous_note1 = og_note as f32 + bend_start.continuous_semitones();
-        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones();
+        let continuous_note1 = og_note as f32 + bend_start.continuous_semitones(self.pitch_bend_range);
+        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
         let bend: Vec<Pos2> = match self.bend_path.path {
             Path::Linear => {
                 let p1 = Pos2::new(start_time.as_secs_f32(), continuous_note1);
@@ -220,7 +223,7 @@ impl Bender {
                                 + self
                                     .get_bend(t)
                                     .expect("response due to time limits")
-                                    .continuous_semitones(),
+                                    .continuous_semitones(self.pitch_bend_range),
                         )
                     })
                     .map(|(x, y)| Pos2::new(x, y))
@@ -232,7 +235,7 @@ impl Bender {
             }
         };
 
-        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones();
+        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
 
         let stop_time = Duration::from_nanos(self.stop_time as u64) - *GLISS_EPOCH;
 
@@ -258,7 +261,7 @@ impl Bender {
     ) -> Result<RenderedBender, String> {
         //log::info!("update_target called with target: {target:?}");
         //log::info!("pre update_target: {self:?}");
-        self.target_bend = self.note.bend_to(target)?;
+        self.target_bend = self.note.bend_to(target, self.pitch_bend_range)?;
         self.start_bend = self.current_bend;
         self.start_time = now;
         self.stop_time = now + bend_duration;
@@ -313,17 +316,17 @@ impl Bender {
     }
 
     pub fn current_midi(&self) -> f32 {
-        self.note.midi_number as f32 + self.current_bend.continuous_semitones()
+        self.note.midi_number as f32 + self.current_bend.continuous_semitones(self.pitch_bend_range)
     }
 }
 
 // TODO simple write simple tests of Ord for Bender
 impl Ord for Bender {
     fn cmp(&self, other: &Self) -> Ordering {
-        let (left_semitones, left_remainder_bend) = self.current_bend.semitones();
+        let (left_semitones, left_remainder_bend) = self.current_bend.semitones(self.pitch_bend_range);
         let left_midi_number = self.note.midi_number as i8 + left_semitones;
 
-        let (right_semitones, right_remainder_bend) = other.current_bend.semitones();
+        let (right_semitones, right_remainder_bend) = other.current_bend.semitones(self.pitch_bend_range);
         let right_midi_number = other.note.midi_number as i8 + right_semitones;
 
         match left_midi_number.cmp(&right_midi_number) {

@@ -1,10 +1,5 @@
 # TODO before sharing/promoting
 
-## FEATURES
-* parameters
-  * chord capture time
-  * `PITCH_BEND_RANGE`
-
 ## UI  
 * 15 colors
 

@@ -82,6 +82,7 @@ pub struct ChordBender {
     pub init_time: Instant,
     pub bend_duration: f64,
     pub hold_duration: f64,
+    pub pitch_bend_range: f32,
     pub chord_capture_duration: f64,
     pub chords: Vec<Chord>,
     pub channels: Vec<Bender>,
@@ -94,6 +95,7 @@ impl ChordBender {
         init_time: Instant,
         bend_duration: f64,
         hold_duration: f64,
+        pitch_bend_range: f32,
         chord_capture_duration: f64,
     ) -> Self {
         log::info!("creating ChordBender");
@@ -102,6 +104,7 @@ impl ChordBender {
             init_time,
             bend_duration,
             hold_duration,
+            pitch_bend_range,
             chord_capture_duration,
             // We only ever need two chords?
             // so use a different struct?
@@ -122,6 +125,7 @@ impl ChordBender {
         now: f64,
         bend_duration: f64,
         hold_duration: f64,
+        pitch_bend_range: f32,
         bend_path: BendPath,
     ) -> Option<(MidiEvent, RenderedBender)> {
         let channel: u8 = match channels.iter().map(|bender| bender.note.channel).max() {
@@ -136,7 +140,7 @@ impl ChordBender {
         note.new_note_on = true;
         log::info!("new_channel called with bend_path: {bend_path:?}");
         let (bender, new_note_event) =
-            Bender::new(note, now, bend_duration, hold_duration, bend_path);
+            Bender::new(note, now, bend_duration, hold_duration, pitch_bend_range, bend_path);
             //Bender::new(note, now, bend_duration, hold_duration, new_path);
         let renderable = bender.get_render();
         channels.push(bender);
@@ -241,6 +245,7 @@ impl ChordBender {
                 now,
                 bend_duration,
                 hold_duration,
+                self.pitch_bend_range as f32,
                 BendPath::default(),
             ) {
                 //new_midi_events.push(new_midi_event);

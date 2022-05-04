@@ -64,13 +64,24 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             log::debug!("n_notes: {}", notes.len());
 
             ui.horizontal(|ui| {
-                ui.add(
-                    egui::widgets::Label::new("DeepGliss")
-                        .strong()
-                        .underline()
-                        .italics()
-                        .heading(),
-                );
+                ui.vertical(|ui| {
+                    ui.add(
+                        egui::widgets::Label::new("DeepGliss")
+                            .strong()
+                            .underline()
+                            .italics()
+                            .heading(),
+                    );
+                    let response = ui.add(egui::widgets::Button::new("Settings"));
+                    if response.clicked() {
+                        let mut editor_params = state.editor_params.lock().unwrap();
+                        *editor_params = vec![PitchBendRange, ChordCaptureDuration];
+                    }
+                    if response.double_clicked() {
+                        state.set_parameter_to_default(PitchBendRange);
+                        state.set_parameter_to_default(ChordCaptureDuration);
+                    }
+                });
                 let mut x1 = 92.0;
                 let mut x2 = x1 + 50.0;
                 let y1 = 25.0;
