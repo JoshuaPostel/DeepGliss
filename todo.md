@@ -1,5 +1,9 @@
 # TODO before sharing/promoting
 
+## FEATURES
+* bezier curve bend path
+* presets
+
 ## UI  
 * 15 colors
 
@@ -19,6 +23,9 @@
 * investigate chord bend on note press that causes popping
 * improve default values 
 
+## LICENCE
+* figure out what licence to publish under
+
 # TODO Backlog
 
 ## UI
@@ -33,12 +40,10 @@
 * saw bend weird behavior when period between 5 and 6
 
 ## FEATURES
-* bezier curve bend path
 * `n_channels` setting:
   * `= n_notes`
   * `= max (16)`
     * would avoid playing new notes
-* presets
 * set `bend_duration` based on when keys are released?
 
 ## TESTS
@@ -46,6 +51,3 @@
 
 ## POLISH
 * investigate ways to mitigate beating
-
-## LICENCE
-* figure out what licence to publish under

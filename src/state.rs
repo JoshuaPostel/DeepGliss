@@ -1,5 +1,7 @@
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::io::Write;
+use std::io::BufRead;
 
 use vst::plugin::PluginParameters;
 use vst::util::ParameterTransfer;
@@ -16,7 +18,7 @@ impl Nano {
     pub const SECOND: f64 = 1_000_000_000.0;
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum GlissParam {
     PitchBendRange,
     BendDuration,
@@ -726,16 +728,26 @@ impl EditorState {
             self.set_parameter_to_default(param);
         }
     }
-}
 
-pub struct DawParameters {
-    pub bend_duration: Mutex<f32>,
-}
+    pub fn save_parameters(&self, mut file: std::fs::File) {
+        for param in GLISS_PARAMETERS {
+            let value = self.get_parameter(param);
+            writeln!(file, "{value}").expect("TODO");
+            log::info!("writing param: {param:?} to: {value}");
+        }
+    }
 
-impl Default for DawParameters {
-    fn default() -> DawParameters {
-        DawParameters {
-            bend_duration: Mutex::new(0.5),
+    pub fn load_parameters(&self, file: std::fs::File) {
+        let mut reader = std::io::BufReader::new(file);
+        for param in GLISS_PARAMETERS {
+            let mut line = String::new();
+            reader.read_line(&mut line).expect("TODO");
+            line.pop();
+            log::info!("read line after newline removed: {line}");
+            let value = line.parse::<f32>().expect("parse works TODO");
+            log::info!("steting param: {param:?} to parsed value: {value}");
+            let index = get_parameter_index(param);
+            self.params.set_parameter(index, value)
         }
     }
 }

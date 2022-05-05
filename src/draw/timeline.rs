@@ -178,11 +178,9 @@ impl Timeline {
         let config = HoldDuration.get_config();
         let mut hold_duration_param = state.get_ui_parameter(HoldDuration);
         let bend_x = 1.0 - self.bend_duration.div_duration_f32(self.total_duration);
-        log::info!("bend_x: {bend_x}");
         let x = bend_x
             + Duration::from_nanos((1_000_000_000.0 * hold_duration_param) as u64)
                 .div_duration_f32(self.total_duration);
-        log::info!("x: {x}");
 
         let bend_pin_center =
             self.to_screen * Pos2::new(bend_x, 0.0) + Vec2::new(0.0, -radius * box_diag);

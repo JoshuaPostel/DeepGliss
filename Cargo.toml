@@ -32,5 +32,6 @@ rtrb = "0.2"
 ordered-float = "2.0"
 lazy_static = "1.4.0"
 rand = "0.8.4"
+chrono = "0.4"
 
 itertools = "0.10.2"

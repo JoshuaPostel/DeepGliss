@@ -81,6 +81,46 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                         state.set_parameter_to_default(PitchBendRange);
                         state.set_parameter_to_default(ChordCaptureDuration);
                     }
+                    let response = ui.add(egui::widgets::Button::new("Save Preset"));
+                    if response.clicked() {
+                        let timestamp = chrono::Local::now().format("%Y%m%d_%H:%M:%S");
+                        let log_folder = ::dirs::home_dir().expect("to get home dir").join("tmp");
+                        let log_file = ::std::fs::File::create(log_folder.join(format!("{timestamp}_DeepGliss.preset"))).expect("can create test.preset");
+                        state.save_parameters(log_file);
+
+                    }
+
+                    let f = |ui: &mut egui::Ui| {
+                        let log_folder = ::dirs::home_dir().expect("to get home dir").join("tmp");
+                        let mut paths = vec![];
+                        for element in std::fs::read_dir(log_folder).unwrap() {
+                            let path = element.unwrap().path();
+                            if let Some(extension) = path.extension() {
+                                if extension == "preset" {
+                                    paths.push(path);
+                                }
+                            }
+                        }
+
+                        let log_folder = ::dirs::home_dir().expect("to get home dir").join("tmp");
+                        let mut selected = String::new();
+                        log::info!("paths: {paths:?}");
+                        for path in paths {
+                            ui.selectable_value(&mut selected, path.display().to_string(), path.display());
+                        }
+                        selected
+                    };
+                    if let Some(response) = egui::ComboBox::from_label("")
+                        .width(20.0)
+                        .selected_text("Load Preset")
+                        .show_ui(ui, f)
+                        .inner {
+                            if !response.is_empty() {
+                                let file = std::fs::File::open(response).expect("TODO");
+                                state.load_parameters(file);
+                            }
+                    };
+
                 });
                 let mut x1 = 92.0;
                 let mut x2 = x1 + 50.0;
