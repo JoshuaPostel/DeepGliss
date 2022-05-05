@@ -2,7 +2,6 @@
 
 ## FEATURES
 * bezier curve bend path
-* presets
 
 ## UI  
 * 15 colors

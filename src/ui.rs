@@ -82,14 +82,11 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                         state.set_parameter_to_default(PitchBendRange);
                         state.set_parameter_to_default(ChordCaptureDuration);
                     }
-                    if let Err(e) = draw_save_preset(ui, state) {
-                        let mut error_state = state.error_state.lock().unwrap();
-                        *error_state = Some(e.to_string());
-                    };
-                    if let Err(e) = draw_load_preset(ui, state) {
-                        let mut error_state = state.error_state.lock().unwrap();
-                        *error_state = Some(e.to_string());
-                    };
+                    let response = ui.add(egui::widgets::Button::new("Presets"));
+                    if response.clicked() {
+                        let mut editor_params = state.editor_params.lock().unwrap();
+                        *editor_params = vec![];
+                    }
                 });
                 let mut x1 = 92.0;
                 let mut x2 = x1 + 50.0;
@@ -399,8 +396,22 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                     ui.label("Parameters");
                     let parameter_editor_rect = Rect::from_x_y_ranges(630.0..=900.0, 15.0..=150.0);
 
-                    let editor_params = state.editor_params.lock().unwrap();
-                    draw_parameter_editor(ui, state, editor_params.to_vec(), parameter_editor_rect);
+                    let editor_params = state.editor_params.lock().unwrap().to_vec();
+                    if editor_params.is_empty() {
+                        ui.horizontal(|ui|{
+                            if let Err(e) = draw_save_preset(ui, state) {
+                                let mut error_state = state.error_state.lock().unwrap();
+                                *error_state = Some(e.to_string());
+                            };
+
+                        });
+                        if let Err(e) = draw_load_preset(ui, state) {
+                            let mut error_state = state.error_state.lock().unwrap();
+                            *error_state = Some(e.to_string());
+                        };
+                    } else {
+                        draw_parameter_editor(ui, state, editor_params, parameter_editor_rect);
+                    }
                 });
             });
 

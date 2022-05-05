@@ -664,6 +664,7 @@ pub struct EditorState {
     pub rendered_benders: Arc<Mutex<RenderedBenders>>,
     pub keyboard_focus: Arc<Mutex<Option<Path>>>,
     pub error_state: Arc<Mutex<Option<String>>>,
+    pub preset_filename: Arc<Mutex<String>>,
 }
 
 impl Default for EditorState {
@@ -683,6 +684,7 @@ impl Default for EditorState {
             rendered_benders: Arc::new(Mutex::new(RenderedBenders::new())),
             keyboard_focus: Arc::new(Mutex::new(None)),
             error_state: Arc::new(Mutex::new(None)),
+            preset_filename: Arc::new(Mutex::new("my_preset".to_string())),
         }
     }
 }
