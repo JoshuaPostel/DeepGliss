@@ -6,11 +6,12 @@ use std::io::BufRead;
 use vst::plugin::PluginParameters;
 use vst::util::ParameterTransfer;
 
+use anyhow::Result;
+
 use crate::midi::bender::RenderedBenders;
 use crate::midi::chord::ChordBender;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::Path;
-//use crate::PITCH_BEND_RANGE;
 
 struct Nano;
 
@@ -729,26 +730,28 @@ impl EditorState {
         }
     }
 
-    pub fn save_parameters(&self, mut file: std::fs::File) {
+    pub fn save_parameters(&self, mut file: std::fs::File) -> Result<()> {
         for param in GLISS_PARAMETERS {
             let value = self.get_parameter(param);
-            writeln!(file, "{value}").expect("TODO");
+            writeln!(file, "{value}")?;
             log::info!("writing param: {param:?} to: {value}");
         }
+        Ok(())
     }
 
-    pub fn load_parameters(&self, file: std::fs::File) {
+    pub fn load_parameters(&self, file: std::fs::File) -> Result<()> {
         let mut reader = std::io::BufReader::new(file);
         for param in GLISS_PARAMETERS {
             let mut line = String::new();
-            reader.read_line(&mut line).expect("TODO");
+            reader.read_line(&mut line)?;
             line.pop();
             log::info!("read line after newline removed: {line}");
-            let value = line.parse::<f32>().expect("parse works TODO");
-            log::info!("steting param: {param:?} to parsed value: {value}");
+            let value = line.parse::<f32>()?;
+            log::info!("setting param: {param:?} to parsed value: {value}");
             let index = get_parameter_index(param);
             self.params.set_parameter(index, value)
         }
+        Ok(())
     }
 }
 
