@@ -419,7 +419,8 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             });
 
             // ui layout
-            let desired_size = ui.available_width() * vec2(1.0, 0.4);
+            // push piano slightly offscreen
+            let desired_size = ui.available_width() * vec2(1.06, 0.445);
             let (_id, rect) = ui.allocate_space(desired_size);
             let to_screen =
                 emath::RectTransform::from_to(Rect::from_x_y_ranges(0.0..=1.0, 0.0..=1.0), rect);

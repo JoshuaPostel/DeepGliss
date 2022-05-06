@@ -161,7 +161,7 @@ impl Note {
                 Ok(Bend(midi_bend))
             }
             _ => Err(format!(
-                "attempted to bend {n_semitones} semitones when max is {pitch_bend_range}"
+                "attempted to bend {n_semitones} semitones when pitch bend range is {pitch_bend_range}"
             )),
         }
     }

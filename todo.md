@@ -1,7 +1,13 @@
 # TODO before sharing/promoting
 
+## UI
+* error messages
+  * explicitly give position where to display
+  * have them fade after a set amount of time
+
 ## DEMO
 * replicate something close to DeepNote using gliss
+* add gif
 
 ## INTERNAL CODE
 * break up state.rs into params.rs
@@ -13,21 +19,10 @@
 * remove `allow(dead_code)`
   * revisit bin + lib crate approach to UI iteration
 
-## POLISH
-* investigate chord bend on note press that causes popping
-* improve default values 
-
-## UI
-* display parameter units
-* lable parameter randomness?
-
-## DEBUG
-* Path::Step last bend does not happen
-
 ## LICENCE
 * figure out what licence to publish under
 
-# TODO Backlog
+# TODO Backlog (write up as github issues)
 
 ## FEATURES
 * bezier curve bend path
@@ -43,6 +38,7 @@
   * non-periodic (s-curve, linear) work as expected
 * at on note events, one low pitch bend event is sent which should not be there
 * saw bend weird behavior when period between 5 and 6
+* Path::Step last bend does not happen
 
 ## FEATURES
 * `n_channels` setting:
@@ -56,3 +52,4 @@
 
 ## POLISH
 * investigate ways to mitigate beating
+* investigate chord bend on note press that causes popping

@@ -58,16 +58,18 @@ pub fn draw_octave(rect: Rect, active_notes: Vec<u8>) -> Vec<Shape> {
         let bot_right = Pos2::new(rect.max.x, rect.max.y - (1.0 + i as f32) * key_height + 2.0);
 
         let key_rect = Rect::from_two_pos(top_left, bot_right);
-        //let key = draw_key(key_rect, *color);
-        //keys.push(key);
-        let mut key = draw_thatched_key(key_rect, *color);
-        keys.append(&mut key);
+
+        let key = draw_key(key_rect, *color);
+        keys.push(key);
+
+        //let mut key = draw_thatched_key(key_rect, *color);
+        //keys.append(&mut key);
     }
     keys
 }
 
 fn draw_key(rect: Rect, color: Color32) -> Shape {
-    Shape::rect_filled(rect, 5.0, color)
+    Shape::rect_filled(rect, 2.5, color)
 }
 
 fn draw_thatched_key(bounds: Rect, color: Color32) -> Vec<Shape> {

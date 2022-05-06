@@ -55,6 +55,7 @@ impl Timeline {
         shapes.push(self.draw_vline());
 
         for note in recent_notes {
+            //if (self.midi_notes.start-1..=self.midi_notes.end+1).contains(&note.midi_number) {
             if self.midi_notes.contains(&note.midi_number) {
                 if let Some(whole_note) = self.draw_whole_note(now, note) {
                     shapes.push(whole_note);

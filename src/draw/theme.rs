@@ -63,10 +63,11 @@ pub const GLISS_THEME: Theme = Theme {
         Color32::from_rgb(250, 0, 135),
     ],
     piano: PianoTheme {
-        white: Color32::from_rgb(192, 192, 192),
+        //good for thatched keys
+        //white: Color32::from_rgb(192, 192, 192),
+        //good for solid keys
+        white: Color32::from_rgb(120, 120, 120),
         black: Color32::from_rgb(64, 64, 64),
-        //white_active: Color32::from_rgb(193, 238, 197),
-        //black_active: Color32::from_rgb(80, 102, 82),
         white_active: Color32::from_rgb(150, 129, 184),
         black_active: Color32::from_rgb(106, 51, 194),
     },
