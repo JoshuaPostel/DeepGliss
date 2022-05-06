@@ -92,7 +92,6 @@ impl Timeline {
             let draw_time: Duration = if note.new_note_on {
                 note.ui_time
             } else {
-                //note.ui_time + self.bend_duration
                 note.ui_time + Duration::from_nanos(note.bend_duration as u64)
             };
             log::debug!("time debug - note.ui_time after adj: {:?}", note.ui_time);

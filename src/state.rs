@@ -204,7 +204,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 1.0,
+                    default: 2.0,
                     is_integer: false,
                     is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
@@ -295,8 +295,8 @@ impl GlissParam {
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
                     unit: "", 
-                    ui_name: "Phase Randomness",
-                    daw_name: "Sin Phase Randomness",
+                    ui_name: "Sharpness Randomness",
+                    daw_name: "Sin Sharpness Randomness",
                     daw_display: &|value| format!("{:.2}", value),
                 }
             }
@@ -306,7 +306,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 4.0,
+                    default: 1.0,
                     is_integer: false,
                     is_semitone: true,
                     ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
@@ -340,7 +340,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 2.0,
+                    default: 4.0,
                     is_integer: true,
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
@@ -387,7 +387,7 @@ impl GlissParam {
             }
             GlissParam::SinPhaseRandomness => {
                 let min = 0.0;
-                let max = 5.0;
+                let max = 1.0;
                 ParamConfig {
                     min,
                     max,
@@ -408,7 +408,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 4.0,
+                    default: 1.0,
                     is_integer: false,
                     is_semitone: true,
                     ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
@@ -442,7 +442,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 2.0,
+                    default: 4.0,
                     is_integer: true,
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
@@ -489,7 +489,7 @@ impl GlissParam {
             }
             GlissParam::TrianglePhaseRandomness => {
                 let min = 0.0;
-                let max = 5.0;
+                let max = 1.0;
                 ParamConfig {
                     min,
                     max,
@@ -510,7 +510,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 4.0,
+                    default: 1.0,
                     is_integer: false,
                     is_semitone: true,
                     ui_to_gliss_scalar: 8192.0,// / PITCH_BEND_RANGE as f64,
@@ -544,7 +544,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 2.0,
+                    default: 4.0,
                     is_integer: true,
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
@@ -591,7 +591,7 @@ impl GlissParam {
             }
             GlissParam::SawPhaseRandomness => {
                 let min = 0.0;
-                let max = 5.0;
+                let max = 1.0;
                 ParamConfig {
                     min,
                     max,
@@ -612,7 +612,7 @@ impl GlissParam {
                 ParamConfig {
                     min,
                     max,
-                    default: 2.0,
+                    default: 4.0,
                     is_integer: true,
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
@@ -684,7 +684,7 @@ impl Default for EditorState {
             rendered_benders: Arc::new(Mutex::new(RenderedBenders::new())),
             keyboard_focus: Arc::new(Mutex::new(None)),
             error_state: Arc::new(Mutex::new(None)),
-            preset_filename: Arc::new(Mutex::new("my_preset".to_string())),
+            preset_filename: Arc::new(Mutex::new("my_filename".to_string())),
         }
     }
 }

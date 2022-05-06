@@ -1,12 +1,10 @@
 # TODO before sharing/promoting
 
-## DEBUG
-* draw notes being bent move poorly when bend duration moved
-
 ## DEMO
 * replicate something close to DeepNote using gliss
 
 ## INTERNAL CODE
+* break up state.rs into params.rs
 * TODO comments
   * read through
   * triage
@@ -18,6 +16,13 @@
 ## POLISH
 * investigate chord bend on note press that causes popping
 * improve default values 
+
+## UI
+* display parameter units
+* lable parameter randomness?
+
+## DEBUG
+* Path::Step last bend does not happen
 
 ## LICENCE
 * figure out what licence to publish under
