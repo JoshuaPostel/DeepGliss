@@ -11,6 +11,7 @@ use crate::GLISS_EPOCH;
 pub enum ChordAppendError {
     Early,
     Late,
+    Full,
     Exists,
 }
 
@@ -63,6 +64,9 @@ impl Chord {
         }
         if self.start_time + self.capture_duration < note.daw_time {
             return Err(ChordAppendError::Late);
+        }
+        if self.notes.len() >= 15 {
+            return Err(ChordAppendError::Full);
         }
         match self
             .notes
@@ -132,7 +136,8 @@ impl ChordBender {
             Some(max_channel) if (2..=16).contains(&max_channel) => max_channel + 1,
             None => 2,
             Some(max_channel) => {
-                log::warn!("attempted to create a new_channel, but max_channel {max_channel} out of bounds");
+                // TODO return Err() to be displayed to user
+                log::warn!("attempted to create a new_channel, but channel {max_channel} > 16 out of bounds");
                 return None;
             }
         };
@@ -184,13 +189,16 @@ impl ChordBender {
                                 Err(ChordAppendError::Exists) => {
                                     log::info!("attempted to append existing note")
                                 }
+                                Err(ChordAppendError::Full) => {
+                                    // TODO show this to user?
+                                    log::info!("attempted to append to a chord with 15 notes")
+                                }
                             }
                         }
                     }
                 }
             }
-            // TODO this is not midi note on, what is it?
-            // midi note on
+            // midi note off
             128..=143 => match self.chords.last_mut() {
                 None => (),
                 Some(previous_chord) => {

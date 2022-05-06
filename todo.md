@@ -1,5 +1,8 @@
 # TODO before sharing/promoting
 
+## DEBUG
+* draw notes being bent move poorly when bend duration moved
+
 ## DEMO
 * replicate something close to DeepNote using gliss
 
