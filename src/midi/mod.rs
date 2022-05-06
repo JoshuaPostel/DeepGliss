@@ -97,6 +97,7 @@ pub struct Note {
     pub channel: u8,
     pub midi_number: u8,
     pub daw_time: f64,
+    pub bend_duration: f64,
     pub ui_time: Duration,
     pub new_note_on: bool,
     pub key_released: bool,
@@ -104,7 +105,7 @@ pub struct Note {
 
 impl Note {
     //pub fn new(midi_data: [u8; 3], daw_time: f64, ui_time: Duration) -> Result<Self, String> {
-    pub fn new(midi_data: [u8; 3], daw_time: f64) -> Result<Self, String> {
+    pub fn new(midi_data: [u8; 3], daw_time: f64, bend_duration: f64) -> Result<Self, String> {
         if daw_time.is_nan() {
             return Err("Note does not allow NAN time".to_string());
         }
@@ -126,6 +127,7 @@ impl Note {
             channel,
             midi_number: midi_data[1],
             daw_time,
+            bend_duration,
             ui_time,
             new_note_on: false,
             key_released: false,

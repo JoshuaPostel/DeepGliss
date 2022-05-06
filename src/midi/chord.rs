@@ -166,7 +166,7 @@ impl ChordBender {
         match event.data[0] {
             // midi note on
             144..=159 => {
-                if let Ok(note) = Note::new(event.data, host_time) {
+                if let Ok(note) = Note::new(event.data, host_time, self.bend_duration) {
                     log::info!("push_event called with: {:?}", event.data);
                     match self.chords.last_mut() {
                         None => {
