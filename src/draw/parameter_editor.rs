@@ -31,11 +31,11 @@ pub fn draw_parameter_editor(ui: &mut Ui, state: &Arc<EditorState>, params: Vec<
             );
             let pm_rect = Rect::from_two_pos(
                 Pos2::new(text_max_x_location + 60.0, to_rect.min.y + (i * 20.0) + 10.0),
-                Pos2::new(text_max_x_location + 80.0, to_rect.min.y + (i * 20.0) + 10.0),
+                Pos2::new(text_max_x_location + 85.0, to_rect.min.y + (i * 20.0) + 10.0),
             );
             let randomness_rect = Rect::from_two_pos(
-                Pos2::new(text_max_x_location + 85.0, to_rect.min.y + (i * 20.0) + 7.5),
-                Pos2::new(text_max_x_location + 135.0, to_rect.min.y + (i * 20.0) + 7.5),
+                Pos2::new(text_max_x_location + 90.0, to_rect.min.y + (i * 20.0) + 7.5),
+                Pos2::new(text_max_x_location + 140.0, to_rect.min.y + (i * 20.0) + 7.5),
             );
             let percision = if config.is_integer {
                 0
@@ -52,7 +52,7 @@ pub fn draw_parameter_editor(ui: &mut Ui, state: &Arc<EditorState>, params: Vec<
             if let Some(randomness_param) =  param.get_randomness_param() {
                 ui.put(
                     pm_rect,
-                    egui::Label::new("+/-"),
+                    egui::Label::new("+ / -"),
                 );
                 let mut val = state.get_ui_parameter(randomness_param);
                 let randomness_config = randomness_param.get_config();
@@ -61,13 +61,14 @@ pub fn draw_parameter_editor(ui: &mut Ui, state: &Arc<EditorState>, params: Vec<
                     egui::DragValue::new(&mut val)
                         .clamp_range(randomness_config.min..=randomness_config.max)
                         .speed(randomness_config.speed)
-                        .fixed_decimals(2),
+                        .fixed_decimals(percision),
                 );
                 if edit_randomness_response.changed() {
                     state.set_parameter(randomness_param, val);
                 };
                 responses.push(edit_randomness_response);
             }
+            ui.label(config.unit);
             // TODO add randomness variables
             if edit_response.changed() {
                 state.set_parameter(param, val);

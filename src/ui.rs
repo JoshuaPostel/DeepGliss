@@ -73,6 +73,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             .italics()
                             .heading(),
                     );
+                    ui.add_space(3.0);
                     let response = ui.add(egui::widgets::Button::new("Settings"));
                     if response.clicked() {
                         let mut editor_params = state.editor_params.lock().unwrap();
@@ -88,6 +89,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                         *editor_params = vec![];
                     }
                 });
+
                 let mut x1 = 92.0;
                 let mut x2 = x1 + 50.0;
                 let y1 = 25.0;
@@ -275,41 +277,6 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             &mut keyboard_focus,
                         );
 
-                        // step
-                        x1 += 60.0;
-                        x2 += 60.0;
-                        let to_rect = egui::Rect::from_x_y_ranges(x1..=x2, y1..=y2);
-                        let p1 = Pos2::new(1.0, 5.0);
-                        let p2 = Pos2::new(5.0, 1.0);
-                        let curve = (0..=n_points)
-                            .map(|point| {
-                                let time = point as f64 / n_points as f64;
-                                Pos2::new(
-                                    1.0 + time as f32 * 4.0,
-                                    BendPather::get_step_bend(
-                                        1.0 + time * 4.0,
-                                        1.0,
-                                        5.0,
-                                        5.0,
-                                        1.0,
-                                        state.get_gliss_parameter(StepPeriods),
-                                    ) as f32,
-                                )
-                            })
-                            .collect();
-                        draw_path_button(
-                            ui,
-                            state,
-                            from_rect,
-                            to_rect,
-                            curve,
-                            vec![&p1, &p2],
-                            val == Path::Step,
-                            Path::Step,
-                            vec![StepPeriods],
-                            &mut keyboard_focus,
-                        );
-
                         // triangle
                         x1 += 60.0;
                         x2 += 60.0;
@@ -387,6 +354,42 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![SawAmplitude, SawPeriods, SawPhase],
                             &mut keyboard_focus,
                         );
+
+                        // step
+                        x1 += 60.0;
+                        x2 += 60.0;
+                        let to_rect = egui::Rect::from_x_y_ranges(x1..=x2, y1..=y2);
+                        let p1 = Pos2::new(1.0, 5.0);
+                        let p2 = Pos2::new(5.0, 1.0);
+                        let curve = (0..=n_points)
+                            .map(|point| {
+                                let time = point as f64 / n_points as f64;
+                                Pos2::new(
+                                    1.0 + time as f32 * 4.0,
+                                    BendPather::get_step_bend(
+                                        1.0 + time * 4.0,
+                                        1.0,
+                                        5.0,
+                                        5.0,
+                                        1.0,
+                                        state.get_gliss_parameter(StepPeriods),
+                                    ) as f32,
+                                )
+                            })
+                            .collect();
+                        draw_path_button(
+                            ui,
+                            state,
+                            from_rect,
+                            to_rect,
+                            curve,
+                            vec![&p1, &p2],
+                            val == Path::Step,
+                            Path::Step,
+                            vec![StepPeriods],
+                            &mut keyboard_focus,
+                        );
+
                     });
                 });
 

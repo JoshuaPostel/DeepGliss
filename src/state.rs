@@ -192,7 +192,7 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
                     speed: (max - min) / 100.0,
-                    unit: "secs", 
+                    unit: "seconds", 
                     ui_name: "Bend Duration",
                     daw_name: "Bend Duration",
                     daw_display: &|value| format!("{:.2} secs", value),
@@ -209,7 +209,7 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
                     speed: (max - min) / 100.0,
-                    unit: "secs", 
+                    unit: "seconds", 
                     ui_name: "Hold Duration",
                     daw_name: "Hold Duration",
                     daw_display: &|value| format!("{:.2} secs", value),
@@ -226,7 +226,7 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: Nano::SECOND,
                     speed: (max - min) / 100.0,
-                    unit: "secs", 
+                    unit: "seconds", 
                     ui_name: "Chord Capture Time",
                     daw_name: "Chord Capture Duration",
                     daw_display: &|value| format!("{:.2} secs", value),
@@ -379,10 +379,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase",
                     daw_name: "Sin Phase",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::SinPhaseRandomness => {
@@ -396,10 +396,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase Randomness",
                     daw_name: "Sin Phase Randomness",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::TriangleAmplitude => {
@@ -481,10 +481,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase",
                     daw_name: "Triangle Phase",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::TrianglePhaseRandomness => {
@@ -498,10 +498,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase Randomness",
                     daw_name: "Triangle Phase Randomness",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::SawAmplitude => {
@@ -583,10 +583,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase",
                     daw_name: "Saw Phase",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::SawPhaseRandomness => {
@@ -600,10 +600,10 @@ impl GlissParam {
                     is_semitone: false,
                     ui_to_gliss_scalar: 1.0,
                     speed: (max - min) / 100.0,
-                    unit: "", 
+                    unit: "periods", 
                     ui_name: "Phase Randomness",
                     daw_name: "Saw Phase Randomness",
-                    daw_display: &|value| format!("{:.2}", value),
+                    daw_display: &|value| format!("{:.2} periods", value),
                 }
             }
             GlissParam::StepPeriods => {

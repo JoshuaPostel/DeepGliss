@@ -125,6 +125,7 @@ pub fn draw_path_button(
         state.set_parameter(BendPath, path_variant.as_f64());
         for (config, param) in configs.iter().zip(params.iter()) {
             let dragged = match param {
+                // TODO reenable dragging?
 //                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
 //                BendPathPeriods => config.speed * response.drag_delta().x as f64,
 //                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
@@ -135,8 +136,10 @@ pub fn draw_path_button(
             let new_val = (val + dragged).min(config.max).max(config.min);
             state.set_parameter(*param, new_val);
         }
-        let mut editor_params = state.editor_params.lock().unwrap();
-        *editor_params = params.clone();
+        if !params.is_empty() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = params.clone();
+        }
         if response.clicked_elsewhere() {
             *keyboard_focus = None;
         }
