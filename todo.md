@@ -1,11 +1,5 @@
 # TODO before sharing/promoting
 
-## FEATURES
-* bezier curve bend path
-
-## UI  
-* 15 colors
-
 ## DEMO
 * replicate something close to DeepNote using gliss
 
@@ -26,6 +20,10 @@
 * figure out what licence to publish under
 
 # TODO Backlog
+
+## FEATURES
+* bezier curve bend path
+  * requires egui >= 0.17
 
 ## UI
 * display measure bars on timeline

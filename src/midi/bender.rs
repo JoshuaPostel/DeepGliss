@@ -244,7 +244,7 @@ impl Bender {
         let p2 = Pos2::new(note_off_time.as_secs_f32(), continuous_note2);
         let hold = (p1, p2);
 
-        let stroke = Stroke::new(0.5, GLISS_THEME.channel_colors[self.note.channel as usize]);
+        let stroke = Stroke::new(0.5, GLISS_THEME.channel_colors[self.note.channel as usize - 2]);
         //let stroke = Stroke::new(0.5, Color32::GOLD);
         //let stroke = Stroke::new(0.5, Color32::from_additive_luminance(100));
 
