@@ -15,7 +15,7 @@ pub mod ui;
 
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::BendPathBuilder;
-use crate::state::{EditorState, GLISS_PARAMETERS};
+use crate::state::{EditorState, GLISS_PARAMETERS, ErrorState};
 use crate::state::GlissParam::*;
 use crate::ui::GlissEditor;
 
@@ -191,7 +191,7 @@ impl Plugin for Gliss {
             },
             Err(e) => {
                 let mut error_state = self.state.error_state.lock().unwrap();
-                *error_state = Some(e);
+                *error_state = Some(ErrorState::new(e));
             },
         }
     }

@@ -16,6 +16,7 @@ pub struct Theme {
 pub const GLISS_THEME: Theme = Theme {
     channel_colors: [
 
+        // TODO test if overlapping looks better with rgba
         // 1
         // purple
         Color32::from_rgb(106, 51, 194),

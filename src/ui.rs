@@ -4,7 +4,7 @@ use crate::draw::parameter_editor::draw_parameter_editor;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
-use crate::state::EditorState;
+use crate::state::{EditorState, ErrorState};
 use crate::state::GlissParam::*;
 
 use std::sync::Arc;
@@ -16,7 +16,6 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use vst::editor::Editor;
 
 use egui::{vec2, CtxRef, Pos2, Rect, Color32};
-use egui::widgets::Label;
 
 use crate::draw::button::{draw_linesegment, draw_map_button, draw_path_button};
 use crate::draw::theme::GLISS_THEME;
@@ -404,13 +403,13 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                         ui.horizontal(|ui|{
                             if let Err(e) = draw_save_preset(ui, state) {
                                 let mut error_state = state.error_state.lock().unwrap();
-                                *error_state = Some(e.to_string());
+                                *error_state = Some(ErrorState::new(e.to_string()));
                             };
 
                         });
                         if let Err(e) = draw_load_preset(ui, state) {
                             let mut error_state = state.error_state.lock().unwrap();
-                            *error_state = Some(e.to_string());
+                            *error_state = Some(ErrorState::new(e.to_string()));
                         };
                     } else {
                         draw_parameter_editor(ui, state, editor_params, parameter_editor_rect);
@@ -482,8 +481,20 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
 
             // inform user of errors
             if let Some(error_state) = &*state.error_state.lock().unwrap() {
-                let error_msg = Label::new(format!("error: {error_state}")).background_color(Color32::DARK_RED);
-                ui.add(error_msg);
+                let seconds_since = error_state.time.elapsed().expect("positive time").as_secs_f64();
+                let alpha = (((10.0 - seconds_since) / 1.0) * 255.0) as u8;
+                let error_rect = ui.painter().text(
+                    Pos2::new(timeline_rect.min.x, timeline_rect.max.y - 18.0),
+                    egui::Align2::LEFT_TOP,
+                    format!(" error:  {} ", error_state.message),
+                    egui::TextStyle::Monospace,
+                    Color32::from_rgba_unmultiplied(200, 200, 200, alpha),
+                );
+                ui.painter().rect_stroke(
+                    error_rect, 
+                    2.0, 
+                    egui::Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 0, 0, alpha))
+                );
             }
         });
     }

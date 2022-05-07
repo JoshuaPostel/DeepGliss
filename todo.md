@@ -1,10 +1,5 @@
 # TODO before sharing/promoting
 
-## UI
-* error messages
-  * explicitly give position where to display
-  * have them fade after a set amount of time
-
 ## DEMO
 * replicate something close to DeepNote using gliss
 * add gif

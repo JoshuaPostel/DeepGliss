@@ -657,13 +657,27 @@ fn get_parameter_index(parameter: GlissParam) -> usize {
     //    }
 }
 
+pub struct ErrorState {
+    pub message: String,
+    pub time: std::time::SystemTime,
+}
+
+impl ErrorState {
+    pub fn new(message: String) -> Self {
+        Self {
+            message,
+            time: std::time::SystemTime::now(),
+        }
+    }
+}
+
 pub struct EditorState {
     pub params: Arc<ParameterTransfer>,
     pub editor_params: Arc<Mutex<Vec<GlissParam>>>,
     pub chord_bender: Arc<Mutex<ChordBender>>,
     pub rendered_benders: Arc<Mutex<RenderedBenders>>,
     pub keyboard_focus: Arc<Mutex<Option<Path>>>,
-    pub error_state: Arc<Mutex<Option<String>>>,
+    pub error_state: Arc<Mutex<Option<ErrorState>>>,
     pub preset_filename: Arc<Mutex<String>>,
 }
 
