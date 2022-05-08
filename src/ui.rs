@@ -1,11 +1,11 @@
+use crate::draw::parameter_editor::draw_parameter_editor;
 use crate::draw::piano;
 use crate::draw::timeline::Timeline;
-use crate::draw::parameter_editor::draw_parameter_editor;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
-use crate::state::{EditorState, ErrorState};
 use crate::state::GlissParam::*;
+use crate::state::{EditorState, ErrorState};
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -15,11 +15,11 @@ use egui_baseview::{EguiWindow, Queue, RenderSettings, Settings};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use vst::editor::Editor;
 
-use egui::{vec2, CtxRef, Pos2, Rect, Color32};
+use egui::{vec2, Color32, CtxRef, Pos2, Rect};
 
 use crate::draw::button::{draw_linesegment, draw_map_button, draw_path_button};
+use crate::draw::preset::{draw_load_preset, draw_save_preset};
 use crate::draw::theme::GLISS_THEME;
-use crate::draw::preset::{draw_save_preset, draw_load_preset};
 use crate::GLISS_EPOCH;
 
 const WINDOW_WIDTH: usize = 1024;
@@ -388,7 +388,6 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![StepPeriods],
                             &mut keyboard_focus,
                         );
-
                     });
                 });
 
@@ -400,12 +399,11 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
 
                     let editor_params = state.editor_params.lock().unwrap().to_vec();
                     if editor_params.is_empty() {
-                        ui.horizontal(|ui|{
+                        ui.horizontal(|ui| {
                             if let Err(e) = draw_save_preset(ui, state) {
                                 let mut error_state = state.error_state.lock().unwrap();
                                 *error_state = Some(ErrorState::new(e.to_string()));
                             };
-
                         });
                         if let Err(e) = draw_load_preset(ui, state) {
                             let mut error_state = state.error_state.lock().unwrap();
@@ -452,7 +450,10 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             //let time_range = start_time..=end_time;
             // TODO reimplement logic in correct orientation?
             // flipping upsidedown
-            let midi_number_x_time = Rect::from_min_max(Pos2::new(start_time, max_midi + 0.5), Pos2::new(end_time, min_midi - 0.5));
+            let midi_number_x_time = Rect::from_min_max(
+                Pos2::new(start_time, max_midi + 0.5),
+                Pos2::new(end_time, min_midi - 0.5),
+            );
             let midi_number_x_time_to_screen =
                 emath::RectTransform::from_to(midi_number_x_time, timeline_rect);
             let mut rendered_benders = state.rendered_benders.lock().unwrap();
@@ -481,7 +482,11 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
 
             // inform user of errors
             if let Some(error_state) = &*state.error_state.lock().unwrap() {
-                let seconds_since = error_state.time.elapsed().expect("positive time").as_secs_f64();
+                let seconds_since = error_state
+                    .time
+                    .elapsed()
+                    .expect("positive time")
+                    .as_secs_f64();
                 let alpha = (((10.0 - seconds_since) / 1.0) * 255.0) as u8;
                 let error_rect = ui.painter().text(
                     Pos2::new(timeline_rect.min.x, timeline_rect.max.y - 18.0),
@@ -491,9 +496,9 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                     Color32::from_rgba_unmultiplied(200, 200, 200, alpha),
                 );
                 ui.painter().rect_stroke(
-                    error_rect, 
-                    2.0, 
-                    egui::Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 0, 0, alpha))
+                    error_rect,
+                    2.0,
+                    egui::Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 0, 0, alpha)),
                 );
             }
         });

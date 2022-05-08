@@ -194,8 +194,10 @@ impl Bender {
 
         let start_time = Duration::from_nanos(self.start_time as u64) - *GLISS_EPOCH;
         let stop_time = Duration::from_nanos(self.stop_time as u64) - *GLISS_EPOCH;
-        let continuous_note1 = og_note as f32 + bend_start.continuous_semitones(self.pitch_bend_range);
-        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
+        let continuous_note1 =
+            og_note as f32 + bend_start.continuous_semitones(self.pitch_bend_range);
+        let continuous_note2 =
+            og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
         let bend: Vec<Pos2> = match self.bend_path.path {
             Path::Linear => {
                 let p1 = Pos2::new(start_time.as_secs_f32(), continuous_note1);
@@ -235,7 +237,8 @@ impl Bender {
             }
         };
 
-        let continuous_note2 = og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
+        let continuous_note2 =
+            og_note as f32 + bend_stop.continuous_semitones(self.pitch_bend_range);
 
         let stop_time = Duration::from_nanos(self.stop_time as u64) - *GLISS_EPOCH;
 
@@ -244,13 +247,11 @@ impl Bender {
         let p2 = Pos2::new(note_off_time.as_secs_f32(), continuous_note2);
         let hold = (p1, p2);
 
-
-
-
-
         // TODO error check on index here or assert > 15 channles doesnt get this far?
         log::info!("self.note.channel: {}", self.note.channel);
-        let color = GLISS_THEME.channel_colors.get(self.note.channel as usize - 2);
+        let color = GLISS_THEME
+            .channel_colors
+            .get(self.note.channel as usize - 2);
         let stroke = Stroke::new(0.5, *color.unwrap_or(&egui::Color32::WHITE));
         //let stroke = Stroke::new(0.5, Color32::GOLD);
         //let stroke = Stroke::new(0.5, Color32::from_additive_luminance(100));
@@ -323,17 +324,22 @@ impl Bender {
     }
 
     pub fn current_midi(&self) -> f32 {
-        self.note.midi_number as f32 + self.current_bend.continuous_semitones(self.pitch_bend_range)
+        self.note.midi_number as f32
+            + self
+                .current_bend
+                .continuous_semitones(self.pitch_bend_range)
     }
 }
 
 // TODO simple write simple tests of Ord for Bender
 impl Ord for Bender {
     fn cmp(&self, other: &Self) -> Ordering {
-        let (left_semitones, left_remainder_bend) = self.current_bend.semitones(self.pitch_bend_range);
+        let (left_semitones, left_remainder_bend) =
+            self.current_bend.semitones(self.pitch_bend_range);
         let left_midi_number = self.note.midi_number as i8 + left_semitones;
 
-        let (right_semitones, right_remainder_bend) = other.current_bend.semitones(self.pitch_bend_range);
+        let (right_semitones, right_remainder_bend) =
+            other.current_bend.semitones(self.pitch_bend_range);
         let right_midi_number = other.note.midi_number as i8 + right_semitones;
 
         match left_midi_number.cmp(&right_midi_number) {

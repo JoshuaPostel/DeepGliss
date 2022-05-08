@@ -15,7 +15,6 @@ pub struct Theme {
 // TODO::UI pick 12 distinct colors
 pub const GLISS_THEME: Theme = Theme {
     channel_colors: [
-
         // TODO test if overlapping looks better with rgba
         // 1
         // purple
@@ -44,7 +43,7 @@ pub const GLISS_THEME: Theme = Theme {
         // 9
         // bright purple
         Color32::from_rgb(200, 20, 250),
-        // 10 
+        // 10
         // yellow gold
         Color32::from_rgb(218, 165, 32),
         // 11

@@ -15,8 +15,8 @@ pub mod ui;
 
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::BendPathBuilder;
-use crate::state::{EditorState, GLISS_PARAMETERS, ErrorState};
 use crate::state::GlissParam::*;
+use crate::state::{EditorState, ErrorState, GLISS_PARAMETERS};
 use crate::ui::GlissEditor;
 
 use std::sync::Arc;
@@ -188,11 +188,11 @@ impl Plugin for Gliss {
                     events.iter().map(|e| e.data).collect::<Vec<[u8; 3]>>()
                 );
                 self.send_buffer.send_events(&events, &mut self.host);
-            },
+            }
             Err(e) => {
                 let mut error_state = self.state.error_state.lock().unwrap();
                 *error_state = Some(ErrorState::new(e));
-            },
+            }
         }
     }
 

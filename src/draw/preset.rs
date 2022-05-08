@@ -4,7 +4,7 @@ use egui::Ui;
 
 use crate::EditorState;
 
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 
 pub fn draw_save_preset(ui: &mut Ui, state: &Arc<EditorState>) -> Result<()> {
     let button = ui.add(egui::widgets::Button::new("Save Preset"));
@@ -21,9 +21,7 @@ pub fn draw_save_preset(ui: &mut Ui, state: &Arc<EditorState>) -> Result<()> {
     Ok(())
 }
 
-
 pub fn draw_load_preset(ui: &mut Ui, state: &Arc<EditorState>) -> Result<()> {
-
     let f = |ui: &mut egui::Ui| {
         let mut selected = String::new();
         let log_folder = dirs::home_dir().context("home directory not detected")?;
@@ -41,7 +39,6 @@ pub fn draw_load_preset(ui: &mut Ui, state: &Arc<EditorState>) -> Result<()> {
             ui.selectable_value(&mut selected, path.display().to_string(), path.display());
         }
 
-
         Ok(selected)
     };
     if let Some(response) = egui::ComboBox::from_label("")
@@ -49,17 +46,18 @@ pub fn draw_load_preset(ui: &mut Ui, state: &Arc<EditorState>) -> Result<()> {
         .width(200.0)
         .selected_text("Load Preset")
         .show_ui(ui, f)
-        .inner {
-            match response {
-                Ok(response) => {
-                    if !response.is_empty() {
-                        let file = std::fs::File::open(response)?;
-                        state.load_parameters(file)?;
-                    }
-                    return Ok(());
-                },
-                Err(e) => return Err(e),
+        .inner
+    {
+        match response {
+            Ok(response) => {
+                if !response.is_empty() {
+                    let file = std::fs::File::open(response)?;
+                    state.load_parameters(file)?;
+                }
+                return Ok(());
             }
+            Err(e) => return Err(e),
+        }
     }
     Ok(())
 }

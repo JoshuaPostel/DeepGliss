@@ -4,7 +4,7 @@ use vst::event::MidiEvent;
 
 use crate::midi::bender::{Bender, RenderedBender};
 use crate::midi::mapper::ChordMapper;
-use crate::midi::paths::{BendPathBuilder, BendPath};
+use crate::midi::paths::{BendPath, BendPathBuilder};
 use crate::midi::Note;
 use crate::GLISS_EPOCH;
 
@@ -144,9 +144,15 @@ impl ChordBender {
         note.channel = channel;
         note.new_note_on = true;
         log::info!("new_channel called with bend_path: {bend_path:?}");
-        let (bender, new_note_event) =
-            Bender::new(note, now, bend_duration, hold_duration, pitch_bend_range, bend_path);
-            //Bender::new(note, now, bend_duration, hold_duration, new_path);
+        let (bender, new_note_event) = Bender::new(
+            note,
+            now,
+            bend_duration,
+            hold_duration,
+            pitch_bend_range,
+            bend_path,
+        );
+        //Bender::new(note, now, bend_duration, hold_duration, new_path);
         let renderable = bender.get_render();
         channels.push(bender);
         Some((new_note_event, renderable))
@@ -216,7 +222,10 @@ impl ChordBender {
     }
 
     // TODO return Renerers
-    fn update_target_chord(&mut self, now: f64) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
+    fn update_target_chord(
+        &mut self,
+        now: f64,
+    ) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
         //fn update_target_chord(&mut self, now: f64) -> Vec<MidiEvent> {
         self.sort_channels();
         let mut chord = self.chords.last_mut().expect("chords to be non-enpty");

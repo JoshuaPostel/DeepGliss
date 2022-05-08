@@ -126,10 +126,10 @@ pub fn draw_path_button(
         for (config, param) in configs.iter().zip(params.iter()) {
             let dragged = match param {
                 // TODO reenable dragging?
-//                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
-//                BendPathPeriods => config.speed * response.drag_delta().x as f64,
-//                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
-//                BendPathPhase => 0.0,
+                //                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
+                //                BendPathPeriods => config.speed * response.drag_delta().x as f64,
+                //                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
+                //                BendPathPhase => 0.0,
                 _ => 0.0,
             };
             let val = state.get_ui_parameter(*param);
@@ -161,22 +161,22 @@ pub fn draw_path_button(
             _ => *keyboard_focus = Some(path_variant),
         }
     }
-//    if *keyboard_focus == Some(path_variant) {
-//        //let parameter_editor_rect = Rect::from_x_y_ranges(600.0..=900.0, 15.0..=150.0);
-//        //let mut responses = draw_parameter_editor(ui, state, params, parameter_editor_rect);
-//        //responses.push(response);
-//        //if responses
-//        //    .iter()
-//        //    .all(|response| response.clicked_elsewhere())
-//        //{
-//        //    *keyboard_focus = None;
-//        //}
-//        let mut editor_params = state.editor_params.lock().unwrap();
-//        *editor_params = params;
-//        if response.clicked_elsewhere() {
-//            *keyboard_focus = None;
-//        }
-//    }
+    //    if *keyboard_focus == Some(path_variant) {
+    //        //let parameter_editor_rect = Rect::from_x_y_ranges(600.0..=900.0, 15.0..=150.0);
+    //        //let mut responses = draw_parameter_editor(ui, state, params, parameter_editor_rect);
+    //        //responses.push(response);
+    //        //if responses
+    //        //    .iter()
+    //        //    .all(|response| response.clicked_elsewhere())
+    //        //{
+    //        //    *keyboard_focus = None;
+    //        //}
+    //        let mut editor_params = state.editor_params.lock().unwrap();
+    //        *editor_params = params;
+    //        if response.clicked_elsewhere() {
+    //            *keyboard_focus = None;
+    //        }
+    //    }
     draw_line(
         ui,
         curve,
