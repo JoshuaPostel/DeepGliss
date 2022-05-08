@@ -1,8 +1,11 @@
 # TODO before sharing/promoting
 
+## DEBUG
+* crossed 4 (or 8) notes -> 3 notes does not bend anything to the middle
+
 ## DEMO
-* replicate something close to DeepNote using gliss
-* add gif
+* replace gif with image 
+* record something close to DeepNote using gliss
 
 ## INTERNAL CODE
 * break up state.rs into params.rs

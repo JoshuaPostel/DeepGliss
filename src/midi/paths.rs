@@ -143,7 +143,7 @@ impl BendPathBuilder {
         BendPath {
             path,
             amplitude: rng.gen_range(self.amplitude-self.amplitude_randomness..=self.amplitude+self.amplitude_randomness),
-            periods: rng.gen_range(self.periods-self.periods_randomness..=self.periods+self.periods_randomness),
+            periods: (rng.gen_range(self.periods-self.periods_randomness..=self.periods+self.periods_randomness)).round(),
             s_curve_beta: rng.gen_range(self.s_curve_sharpness-self.s_curve_sharpness_randomness..=self.s_curve_sharpness+self.s_curve_sharpness_randomness),
             phase: rng.gen_range(self.phase-self.phase_randomness..=self.phase+self.phase_randomness),
         }
