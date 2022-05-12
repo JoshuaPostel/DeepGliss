@@ -4,13 +4,14 @@ use vst::event::MidiEvent;
 
 use crate::midi::bender::{Bender, RenderedBender};
 use crate::midi::mapper::ChordMapper;
-use crate::midi::paths::{BendPath, Path};
+use crate::midi::paths::{BendPath, BendPathBuilder};
 use crate::midi::Note;
 use crate::GLISS_EPOCH;
 
 pub enum ChordAppendError {
     Early,
     Late,
+    Full,
     Exists,
 }
 
@@ -64,6 +65,9 @@ impl Chord {
         if self.start_time + self.capture_duration < note.daw_time {
             return Err(ChordAppendError::Late);
         }
+        if self.notes.len() >= 15 {
+            return Err(ChordAppendError::Full);
+        }
         match self
             .notes
             .binary_search_by(|n| n.midi_number.cmp(&note.midi_number))
@@ -82,11 +86,11 @@ pub struct ChordBender {
     pub init_time: Instant,
     pub bend_duration: f64,
     pub hold_duration: f64,
+    pub pitch_bend_range: f32,
     pub chord_capture_duration: f64,
     pub chords: Vec<Chord>,
-    pub current_chord: usize,
     pub channels: Vec<Bender>,
-    pub bend_path: BendPath,
+    pub bend_path: BendPathBuilder,
     pub chord_mapper: ChordMapper,
 }
 
@@ -95,6 +99,7 @@ impl ChordBender {
         init_time: Instant,
         bend_duration: f64,
         hold_duration: f64,
+        pitch_bend_range: f32,
         chord_capture_duration: f64,
     ) -> Self {
         log::info!("creating ChordBender");
@@ -103,14 +108,14 @@ impl ChordBender {
             init_time,
             bend_duration,
             hold_duration,
+            pitch_bend_range,
             chord_capture_duration,
             // We only ever need two chords?
             // so use a different struct?
             // array or ringbuffer sort of thing?
             chords: vec![],
-            current_chord: 0,
             channels: vec![],
-            bend_path: BendPath::default(),
+            bend_path: BendPathBuilder::default(),
             chord_mapper: ChordMapper::default(),
         }
     }
@@ -124,28 +129,30 @@ impl ChordBender {
         now: f64,
         bend_duration: f64,
         hold_duration: f64,
+        pitch_bend_range: f32,
         bend_path: BendPath,
     ) -> Option<(MidiEvent, RenderedBender)> {
         let channel: u8 = match channels.iter().map(|bender| bender.note.channel).max() {
             Some(max_channel) if (2..=16).contains(&max_channel) => max_channel + 1,
             None => 2,
             Some(max_channel) => {
-                log::warn!("attempted to create a new_channel, but max_channel {max_channel} out of bounds");
+                // TODO return Err() to be displayed to user
+                log::warn!("attempted to create a new_channel, but channel {max_channel} > 16 out of bounds");
                 return None;
             }
         };
         note.channel = channel;
         note.new_note_on = true;
         log::info!("new_channel called with bend_path: {bend_path:?}");
-        let new_path = BendPath {
-            path: Path::Linear,
-            amplitude: bend_path.amplitude,
-            periods: bend_path.periods,
-            s_curve_beta: bend_path.s_curve_beta,
-        };
-        let (bender, new_note_event) =
-            //Bender::new(note, now, bend_duration, hold_duration, bend_path);
-            Bender::new(note, now, bend_duration, hold_duration, new_path);
+        let (bender, new_note_event) = Bender::new(
+            note,
+            now,
+            bend_duration,
+            hold_duration,
+            pitch_bend_range,
+            bend_path,
+        );
+        //Bender::new(note, now, bend_duration, hold_duration, new_path);
         let renderable = bender.get_render();
         channels.push(bender);
         Some((new_note_event, renderable))
@@ -165,7 +172,7 @@ impl ChordBender {
         match event.data[0] {
             // midi note on
             144..=159 => {
-                if let Ok(note) = Note::new(event.data, host_time) {
+                if let Ok(note) = Note::new(event.data, host_time, self.bend_duration) {
                     log::info!("push_event called with: {:?}", event.data);
                     match self.chords.last_mut() {
                         None => {
@@ -188,12 +195,16 @@ impl ChordBender {
                                 Err(ChordAppendError::Exists) => {
                                     log::info!("attempted to append existing note")
                                 }
+                                Err(ChordAppendError::Full) => {
+                                    // TODO show this to user?
+                                    log::info!("attempted to append to a chord with 15 notes")
+                                }
                             }
                         }
                     }
                 }
             }
-            // midi note on
+            // midi note off
             128..=143 => match self.chords.last_mut() {
                 None => (),
                 Some(previous_chord) => {
@@ -211,7 +222,10 @@ impl ChordBender {
     }
 
     // TODO return Renerers
-    fn update_target_chord(&mut self, now: f64) -> (Vec<MidiEvent>, Vec<RenderedBender>) {
+    fn update_target_chord(
+        &mut self,
+        now: f64,
+    ) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
         //fn update_target_chord(&mut self, now: f64) -> Vec<MidiEvent> {
         self.sort_channels();
         let mut chord = self.chords.last_mut().expect("chords to be non-enpty");
@@ -233,14 +247,23 @@ impl ChordBender {
         let (target_note_indicies, new_note_indicies) =
             self.chord_mapper.get_mapping(&self.channels, &chord.notes);
 
+        // for testing how total randomness sounds
+        //self.bend_path.path = None;
+
+        let (bend_duration, hold_duration) = if target_note_indicies.is_empty() {
+            (self.hold_duration, 0.0)
+        } else {
+            (self.bend_duration, self.hold_duration)
+        };
         for new_note_idx in new_note_indicies {
             if let Some((new_midi_event, renderable)) = ChordBender::new_channel(
                 &mut self.channels,
                 &mut chord.notes[new_note_idx],
                 now,
-                self.bend_duration,
-                self.hold_duration,
-                self.bend_path,
+                bend_duration,
+                hold_duration,
+                self.pitch_bend_range as f32,
+                BendPath::default(),
             ) {
                 //new_midi_events.push(new_midi_event);
                 midi_events.push(new_midi_event);
@@ -260,24 +283,24 @@ impl ChordBender {
                 now,
                 self.bend_duration,
                 self.hold_duration,
-                self.bend_path,
-            );
+                self.bend_path.build(),
+            )?;
             renderables.push(renderable);
         }
 
         log::info!("done update_target_chord:\n{:?}", self);
-        (midi_events, renderables)
+        Ok((midi_events, renderables))
     }
 
     // TODO return Renerers
     //  -> (Vec<MidiEvent>, Vec<Renderable>) {
-    pub fn bend(&mut self, time: f64) -> (Vec<MidiEvent>, Vec<RenderedBender>) {
+    pub fn bend(&mut self, time: f64) -> Result<(Vec<MidiEvent>, Vec<RenderedBender>), String> {
         let mut events = vec![];
         let mut renderables = vec![];
 
         if let Some(chord) = self.chords.last() {
             if !chord.sent_to_bender && chord.done_capturing(time) {
-                let (mut new_events, mut new_renderables) = self.update_target_chord(time);
+                let (mut new_events, mut new_renderables) = self.update_target_chord(time)?;
                 events.append(&mut new_events);
                 renderables.append(&mut new_renderables);
             }
@@ -292,6 +315,6 @@ impl ChordBender {
         }
         //self.channels.retain(|&bender| bender.active);
         self.channels.retain(|bender| bender.active);
-        (events, renderables)
+        Ok((events, renderables))
     }
 }

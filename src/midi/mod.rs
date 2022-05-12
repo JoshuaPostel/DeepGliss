@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use vst::event::MidiEvent;
 
-use crate::{GLISS_EPOCH, PITCH_BEND_RANGE};
+use crate::GLISS_EPOCH;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct Bend(pub u16);
@@ -58,19 +58,18 @@ impl Bend {
         }
     }
 
-    // TODO simple write simple tests for this
-    pub fn semitones(self) -> (i8, i8) {
+    pub fn semitones(self, pitch_bend_range: f32) -> (i8, i8) {
         let percentage_of_range = (self.0 as f32 - 8_192.0) / 8_192.0;
-        let semitones = PITCH_BEND_RANGE as f32 * percentage_of_range;
-        let bend_remainder = semitones.fract() / PITCH_BEND_RANGE as f32 * 8_192.0;
+        let semitones = pitch_bend_range * percentage_of_range;
+        let bend_remainder = semitones.fract() / pitch_bend_range * 8_192.0;
         let whole_semitones = semitones.trunc() as i8;
         let whole_bend_remainder = bend_remainder.trunc() as i8;
         (whole_semitones, whole_bend_remainder)
     }
 
-    pub fn continuous_semitones(self) -> f32 {
+    pub fn continuous_semitones(self, pitch_bend_range: f32) -> f32 {
         let percentage_of_range = (self.0 as f32 - 8_192.0) / 8_192.0;
-        PITCH_BEND_RANGE as f32 * percentage_of_range
+        pitch_bend_range as f32 * percentage_of_range
     }
 }
 
@@ -98,6 +97,7 @@ pub struct Note {
     pub channel: u8,
     pub midi_number: u8,
     pub daw_time: f64,
+    pub bend_duration: f64,
     pub ui_time: Duration,
     pub new_note_on: bool,
     pub key_released: bool,
@@ -105,7 +105,7 @@ pub struct Note {
 
 impl Note {
     //pub fn new(midi_data: [u8; 3], daw_time: f64, ui_time: Duration) -> Result<Self, String> {
-    pub fn new(midi_data: [u8; 3], daw_time: f64) -> Result<Self, String> {
+    pub fn new(midi_data: [u8; 3], daw_time: f64, bend_duration: f64) -> Result<Self, String> {
         if daw_time.is_nan() {
             return Err("Note does not allow NAN time".to_string());
         }
@@ -127,6 +127,7 @@ impl Note {
             channel,
             midi_number: midi_data[1],
             daw_time,
+            bend_duration,
             ui_time,
             new_note_on: false,
             key_released: false,
@@ -147,10 +148,10 @@ impl Note {
     }
 
     // TODO or just return Bend to max?
-    pub fn bend_to(&self, target: &Note) -> Result<Bend, String> {
+    pub fn bend_to(&self, target: &Note, pitch_bend_range: f32) -> Result<Bend, String> {
         let n_semitones = target.midi_number as f32 - self.midi_number as f32;
         log::info!("bend_to n_semitones {}", n_semitones);
-        let pitch_bend_ratio = n_semitones / PITCH_BEND_RANGE as f32;
+        let pitch_bend_ratio = n_semitones / pitch_bend_range;
         log::info!("bend_to pitch_bend_ratio {}", pitch_bend_ratio);
         match pitch_bend_ratio {
             ratio if (-1.0..=1.0).contains(&ratio) => {
@@ -160,7 +161,7 @@ impl Note {
                 Ok(Bend(midi_bend))
             }
             _ => Err(format!(
-                "attempting to bend {n_semitones} semitones when max is {PITCH_BEND_RANGE}"
+                "attempted to bend {n_semitones} semitones when pitch bend range is {pitch_bend_range}"
             )),
         }
     }

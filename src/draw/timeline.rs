@@ -55,6 +55,7 @@ impl Timeline {
         shapes.push(self.draw_vline());
 
         for note in recent_notes {
+            //if (self.midi_notes.start-1..=self.midi_notes.end+1).contains(&note.midi_number) {
             if self.midi_notes.contains(&note.midi_number) {
                 if let Some(whole_note) = self.draw_whole_note(now, note) {
                     shapes.push(whole_note);
@@ -86,15 +87,13 @@ impl Timeline {
     }
 
     fn draw_whole_note(&self, now: Duration, note: Note) -> Option<Shape> {
-        log::debug!("time debug - now: {:?}", now);
-        log::debug!("time debug - note: {:?}", note);
-        let relative_note = note.midi_number - self.midi_notes.start;
+        let relative_note = self.midi_notes.end - note.midi_number - 1;
         let stroke = Stroke::new(self.line_spacing_absolute / 7.5, Color32::WHITE);
         if let Some(end_time) = now.checked_sub(self.history_duration) {
             let draw_time: Duration = if note.new_note_on {
                 note.ui_time
             } else {
-                note.ui_time + self.bend_duration
+                note.ui_time + Duration::from_nanos(note.bend_duration as u64)
             };
             log::debug!("time debug - note.ui_time after adj: {:?}", note.ui_time);
             if let Some(relative_time) = draw_time.checked_sub(end_time) {
@@ -161,6 +160,13 @@ impl Timeline {
         }
         ui.painter().add(pin_cone_shape);
         ui.painter().add(pin_circle_shape);
+        if pin_response.dragged() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = vec![BendDuration, HoldDuration];
+        }
+        if pin_response.double_clicked() {
+            state.set_parameter_to_default(BendDuration)
+        }
     }
 
     // TODO rename some variables and refactor to stay DRY
@@ -173,11 +179,9 @@ impl Timeline {
         let config = HoldDuration.get_config();
         let mut hold_duration_param = state.get_ui_parameter(HoldDuration);
         let bend_x = 1.0 - self.bend_duration.div_duration_f32(self.total_duration);
-        log::info!("bend_x: {bend_x}");
         let x = bend_x
             + Duration::from_nanos((1_000_000_000.0 * hold_duration_param) as u64)
                 .div_duration_f32(self.total_duration);
-        log::info!("x: {x}");
 
         let bend_pin_center =
             self.to_screen * Pos2::new(bend_x, 0.0) + Vec2::new(0.0, -radius * box_diag);
@@ -209,5 +213,12 @@ impl Timeline {
         }
         ui.painter().add(connecting_line);
         ui.painter().add(pin_circle_shape);
+        if pin_response.dragged() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = vec![BendDuration, HoldDuration];
+        }
+        if pin_response.double_clicked() {
+            state.set_parameter_to_default(HoldDuration)
+        }
     }
 }

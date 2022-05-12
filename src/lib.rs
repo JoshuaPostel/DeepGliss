@@ -14,12 +14,9 @@ pub mod state;
 pub mod ui;
 
 use crate::midi::mapper::ChordMap;
-use crate::midi::paths::Path;
-use crate::state::EditorState;
-use crate::state::GlissParam::{
-    BendDuration, BendMapping, BendPath, BendPathAmplitude, BendPathPeriods,
-    BendPathSCurveSharpness, HoldDuration,
-};
+use crate::midi::paths::BendPathBuilder;
+use crate::state::GlissParam::*;
+use crate::state::{EditorState, ErrorState, GLISS_PARAMETERS};
 use crate::ui::GlissEditor;
 
 use std::sync::Arc;
@@ -32,7 +29,7 @@ use vst::event::{Event, MidiEvent};
 use vst::plugin::{CanDo, Category, HostCallback, Info, Plugin, PluginParameters};
 
 //pub const PITCH_BEND_RANGE: u8 = 48;
-pub const PITCH_BEND_RANGE: u8 = 24;
+//pub const PITCH_BEND_RANGE: u8 = 24;
 
 lazy_static! {
     pub static ref GLISS_EPOCH: Duration = SystemTime::now()
@@ -106,7 +103,7 @@ impl Plugin for Gliss {
             version: 3,
             inputs: 2,
             outputs: 2,
-            parameters: 7,
+            parameters: GLISS_PARAMETERS.len() as i32,
             category: Category::Effect,
             midi_outputs: 1,
             ..Default::default()
@@ -174,25 +171,29 @@ impl Plugin for Gliss {
         let mut chord_bender = self.state.chord_bender.lock().unwrap();
         chord_bender.bend_duration = self.state.get_gliss_parameter(BendDuration);
         chord_bender.hold_duration = self.state.get_gliss_parameter(HoldDuration);
-        chord_bender.bend_path.amplitude = self.state.get_gliss_parameter(BendPathAmplitude);
-        chord_bender.bend_path.periods = self.state.get_gliss_parameter(BendPathPeriods);
-        chord_bender.bend_path.s_curve_beta =
-            self.state.get_gliss_parameter(BendPathSCurveSharpness);
-        chord_bender.bend_path.path = Path::from_f32(self.state.get_parameter(BendPath));
+        chord_bender.pitch_bend_range = self.state.get_gliss_parameter(PitchBendRange) as f32;
+        chord_bender.chord_capture_duration = self.state.get_gliss_parameter(ChordCaptureDuration);
         chord_bender.chord_mapper.chord_map =
             ChordMap::from_f32(self.state.get_parameter(BendMapping));
+        chord_bender.bend_path = BendPathBuilder::from_state(&self.state);
 
-        let (events, new_rendered_benders) = chord_bender.bend(host_time);
+        match chord_bender.bend(host_time) {
+            Ok((events, new_rendered_benders)) => {
+                let mut rendered_benders = self.state.rendered_benders.lock().unwrap();
+                // TODO use new method
+                rendered_benders.append(new_rendered_benders);
 
-        let mut rendered_benders = self.state.rendered_benders.lock().unwrap();
-        // TODO use new method
-        rendered_benders.append(new_rendered_benders);
-
-        log::debug!(
-            "sending events: {:?}",
-            events.iter().map(|e| e.data).collect::<Vec<[u8; 3]>>()
-        );
-        self.send_buffer.send_events(&events, &mut self.host);
+                log::debug!(
+                    "sending events: {:?}",
+                    events.iter().map(|e| e.data).collect::<Vec<[u8; 3]>>()
+                );
+                self.send_buffer.send_events(&events, &mut self.host);
+            }
+            Err(e) => {
+                let mut error_state = self.state.error_state.lock().unwrap();
+                *error_state = Some(ErrorState::new(e));
+            }
+        }
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {

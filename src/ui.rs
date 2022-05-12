@@ -1,12 +1,11 @@
+use crate::draw::parameter_editor::draw_parameter_editor;
 use crate::draw::piano;
 use crate::draw::timeline::Timeline;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::{BendPath as BendPather, Path};
 use crate::midi::Note;
-use crate::state::EditorState;
-use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness,
-};
+use crate::state::GlissParam::*;
+use crate::state::{EditorState, ErrorState};
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -16,9 +15,10 @@ use egui_baseview::{EguiWindow, Queue, RenderSettings, Settings};
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use vst::editor::Editor;
 
-use egui::{vec2, CtxRef, Pos2, Rect};
+use egui::{vec2, Color32, CtxRef, Pos2, Rect};
 
 use crate::draw::button::{draw_linesegment, draw_map_button, draw_path_button};
+use crate::draw::preset::{draw_load_preset, draw_save_preset};
 use crate::draw::theme::GLISS_THEME;
 use crate::GLISS_EPOCH;
 
@@ -64,20 +64,39 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             log::debug!("n_notes: {}", notes.len());
 
             ui.horizontal(|ui| {
-                ui.add(
-                    egui::widgets::Label::new("DeepGliss")
-                        .strong()
-                        .underline()
-                        .italics()
-                        .heading(),
-                );
+                ui.vertical(|ui| {
+                    ui.add(
+                        egui::widgets::Label::new("DeepGliss")
+                            .strong()
+                            .underline()
+                            .italics()
+                            .heading(),
+                    );
+                    ui.add_space(3.0);
+                    let response = ui.add(egui::widgets::Button::new("Settings"));
+                    if response.clicked() {
+                        let mut editor_params = state.editor_params.lock().unwrap();
+                        *editor_params = vec![PitchBendRange, ChordCaptureDuration];
+                    }
+                    if response.double_clicked() {
+                        state.set_parameter_to_default(PitchBendRange);
+                        state.set_parameter_to_default(ChordCaptureDuration);
+                    }
+                    let response = ui.add(egui::widgets::Button::new("Presets"));
+                    if response.clicked() {
+                        let mut editor_params = state.editor_params.lock().unwrap();
+                        *editor_params = vec![];
+                    }
+                });
+
                 let mut x1 = 92.0;
                 let mut x2 = x1 + 50.0;
                 let y1 = 25.0;
                 let y2 = 75.0;
                 ui.vertical(|ui| {
                     ui.label("Bend Mapping");
-                    ui.add_space(110.0);
+                    // determins start of timeline
+                    ui.add_space(70.0);
                     ui.horizontal(|ui| {
                         let val = ChordMap::from_f32(state.get_parameter(BendMapping));
                         // v1
@@ -175,7 +194,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.s_curve_beta,
+                                        state.get_gliss_parameter(SCurveSharpness),
                                     ) as f32,
                                 )
                             })
@@ -189,7 +208,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::SCurve,
                             Path::SCurve,
-                            vec![BendPathSCurveSharpness],
+                            vec![SCurveSharpness],
                             &mut keyboard_focus,
                         );
 
@@ -237,8 +256,9 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(SinAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(SinPeriods),
+                                        state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -252,42 +272,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Sin,
                             Path::Sin,
-                            vec![BendPathAmplitude, BendPathPeriods],
-                            &mut keyboard_focus,
-                        );
-
-                        // step
-                        x1 += 60.0;
-                        x2 += 60.0;
-                        let to_rect = egui::Rect::from_x_y_ranges(x1..=x2, y1..=y2);
-                        let p1 = Pos2::new(1.0, 5.0);
-                        let p2 = Pos2::new(5.0, 1.0);
-                        let curve = (0..=n_points)
-                            .map(|point| {
-                                let time = point as f64 / n_points as f64;
-                                Pos2::new(
-                                    1.0 + time as f32 * 4.0,
-                                    BendPather::get_step_bend(
-                                        1.0 + time * 4.0,
-                                        1.0,
-                                        5.0,
-                                        5.0,
-                                        1.0,
-                                        chord_bender.bend_path.periods,
-                                    ) as f32,
-                                )
-                            })
-                            .collect();
-                        draw_path_button(
-                            ui,
-                            state,
-                            from_rect,
-                            to_rect,
-                            curve,
-                            vec![&p1, &p2],
-                            val == Path::Step,
-                            Path::Step,
-                            vec![BendPathPeriods],
+                            vec![SinAmplitude, SinPeriods, SinPhase],
                             &mut keyboard_focus,
                         );
 
@@ -308,8 +293,11 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(TriangleAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(TrianglePeriods),
+                                        state.get_gliss_parameter(TrianglePhase),
+                                        // TODO
+                                        //state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -323,7 +311,7 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Triangle,
                             Path::Triangle,
-                            vec![BendPathAmplitude, BendPathPeriods],
+                            vec![TriangleAmplitude, TrianglePeriods, TrianglePhase],
                             &mut keyboard_focus,
                         );
 
@@ -344,8 +332,11 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                                         5.0,
                                         5.0,
                                         1.0,
-                                        chord_bender.bend_path.amplitude / 1_000.0,
-                                        chord_bender.bend_path.periods,
+                                        state.get_gliss_parameter(SawAmplitude) / 1_000.0,
+                                        state.get_gliss_parameter(SawPeriods),
+                                        state.get_gliss_parameter(SawPhase),
+                                        // TODO
+                                        //state.get_gliss_parameter(SinPhase),
                                     ) as f32,
                                 )
                             })
@@ -359,7 +350,42 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
                             vec![&p1, &p2],
                             val == Path::Saw,
                             Path::Saw,
-                            vec![BendPathAmplitude, BendPathPeriods],
+                            vec![SawAmplitude, SawPeriods, SawPhase],
+                            &mut keyboard_focus,
+                        );
+
+                        // step
+                        x1 += 60.0;
+                        x2 += 60.0;
+                        let to_rect = egui::Rect::from_x_y_ranges(x1..=x2, y1..=y2);
+                        let p1 = Pos2::new(1.0, 5.0);
+                        let p2 = Pos2::new(5.0, 1.0);
+                        let curve = (0..=n_points)
+                            .map(|point| {
+                                let time = point as f64 / n_points as f64;
+                                Pos2::new(
+                                    1.0 + time as f32 * 4.0,
+                                    BendPather::get_step_bend(
+                                        1.0 + time * 4.0,
+                                        1.0,
+                                        5.0,
+                                        5.0,
+                                        1.0,
+                                        state.get_gliss_parameter(StepPeriods),
+                                    ) as f32,
+                                )
+                            })
+                            .collect();
+                        draw_path_button(
+                            ui,
+                            state,
+                            from_rect,
+                            to_rect,
+                            curve,
+                            vec![&p1, &p2],
+                            val == Path::Step,
+                            Path::Step,
+                            vec![StepPeriods],
                             &mut keyboard_focus,
                         );
                     });
@@ -367,10 +393,31 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
 
                 // TODO add dark and light mode?
                 //egui::widgets::global_dark_light_mode_switch(ui);
+                ui.vertical(|ui| {
+                    ui.label("Parameters");
+                    let parameter_editor_rect = Rect::from_x_y_ranges(630.0..=900.0, 15.0..=150.0);
+
+                    let editor_params = state.editor_params.lock().unwrap().to_vec();
+                    if editor_params.is_empty() {
+                        ui.horizontal(|ui| {
+                            if let Err(e) = draw_save_preset(ui, state) {
+                                let mut error_state = state.error_state.lock().unwrap();
+                                *error_state = Some(ErrorState::new(e.to_string()));
+                            };
+                        });
+                        if let Err(e) = draw_load_preset(ui, state) {
+                            let mut error_state = state.error_state.lock().unwrap();
+                            *error_state = Some(ErrorState::new(e.to_string()));
+                        };
+                    } else {
+                        draw_parameter_editor(ui, state, editor_params, parameter_editor_rect);
+                    }
+                });
             });
 
             // ui layout
-            let desired_size = ui.available_width() * vec2(1.0, 0.4);
+            // push piano slightly offscreen
+            let desired_size = ui.available_width() * vec2(1.06, 0.445);
             let (_id, rect) = ui.allocate_space(desired_size);
             let to_screen =
                 emath::RectTransform::from_to(Rect::from_x_y_ranges(0.0..=1.0, 0.0..=1.0), rect);
@@ -397,11 +444,16 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             let midi_notes = timeline.midi_notes;
             let min_midi = midi_notes.clone().min().unwrap() as f32;
             let max_midi = midi_notes.max().unwrap() as f32;
-            let midi_range = min_midi - 0.5..=max_midi + 0.5;
+            //let midi_range = min_midi - 0.5..=max_midi + 0.5;
             let start_time = (ui_now - timeline.history_duration).as_secs_f32();
             let end_time = (ui_now + timeline.bend_duration).as_secs_f32();
-            let time_range = start_time..=end_time;
-            let midi_number_x_time = Rect::from_x_y_ranges(time_range, midi_range);
+            //let time_range = start_time..=end_time;
+            // TODO reimplement logic in correct orientation?
+            // flipping upsidedown
+            let midi_number_x_time = Rect::from_min_max(
+                Pos2::new(start_time, max_midi + 0.5),
+                Pos2::new(end_time, min_midi - 0.5),
+            );
             let midi_number_x_time_to_screen =
                 emath::RectTransform::from_to(midi_number_x_time, timeline_rect);
             let mut rendered_benders = state.rendered_benders.lock().unwrap();
@@ -427,6 +479,28 @@ pub fn update() -> impl FnMut(&egui::CtxRef, &mut Queue, &mut Arc<EditorState>) 
             shapes.append(&mut piano);
 
             ui.painter().extend(shapes);
+
+            // inform user of errors
+            if let Some(error_state) = &*state.error_state.lock().unwrap() {
+                let seconds_since = error_state
+                    .time
+                    .elapsed()
+                    .expect("positive time")
+                    .as_secs_f64();
+                let alpha = (((10.0 - seconds_since) / 1.0) * 255.0) as u8;
+                let error_rect = ui.painter().text(
+                    Pos2::new(timeline_rect.min.x, timeline_rect.max.y - 18.0),
+                    egui::Align2::LEFT_TOP,
+                    format!(" error:  {} ", error_state.message),
+                    egui::TextStyle::Monospace,
+                    Color32::from_rgba_unmultiplied(200, 200, 200, alpha),
+                );
+                ui.painter().rect_stroke(
+                    error_rect,
+                    2.0,
+                    egui::Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 0, 0, alpha)),
+                );
+            }
         });
     }
 }

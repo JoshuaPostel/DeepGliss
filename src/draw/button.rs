@@ -1,9 +1,7 @@
 use crate::draw::theme::GLISS_THEME;
 use crate::midi::mapper::ChordMap;
 use crate::midi::paths::Path;
-use crate::state::GlissParam::{
-    BendMapping, BendPath, BendPathAmplitude, BendPathPeriods, BendPathSCurveSharpness,
-};
+use crate::state::GlissParam::*;
 use crate::state::{EditorState, GlissParam, ParamConfig};
 
 use std::sync::Arc;
@@ -109,6 +107,7 @@ pub fn draw_path_button(
     state: &Arc<EditorState>,
     from_rect: Rect,
     to_rect: Rect,
+    //parameter_editor_rect: Rect,
     curve: Vec<Pos2>,
     notes: Vec<&Pos2>,
     selected: bool,
@@ -126,14 +125,23 @@ pub fn draw_path_button(
         state.set_parameter(BendPath, path_variant.as_f64());
         for (config, param) in configs.iter().zip(params.iter()) {
             let dragged = match param {
-                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
-                BendPathPeriods => config.speed * response.drag_delta().x as f64,
-                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
-                _ => unimplemented!(),
+                // TODO reenable dragging?
+                //                BendPathAmplitude => config.speed * response.drag_delta().y as f64,
+                //                BendPathPeriods => config.speed * response.drag_delta().x as f64,
+                //                BendPathSCurveSharpness => config.speed * response.drag_delta().y as f64,
+                //                BendPathPhase => 0.0,
+                _ => 0.0,
             };
             let val = state.get_ui_parameter(*param);
             let new_val = (val + dragged).min(config.max).max(config.min);
             state.set_parameter(*param, new_val);
+        }
+        if !params.is_empty() {
+            let mut editor_params = state.editor_params.lock().unwrap();
+            *editor_params = params.clone();
+        }
+        if response.clicked_elsewhere() {
+            *keyboard_focus = None;
         }
         // TODO figure out how to "was_dragged_recently"
         // if dragged != 0.0 {
@@ -143,8 +151,8 @@ pub fn draw_path_button(
         // }
     }
     if response.double_clicked() {
-        for (config, param) in configs.iter().zip(params.iter()) {
-            state.set_parameter(*param, config.default)
+        for param in params {
+            state.set_parameter_to_default(param)
         }
     }
     if response.secondary_clicked() {
@@ -153,63 +161,22 @@ pub fn draw_path_button(
             _ => *keyboard_focus = Some(path_variant),
         }
     }
-    if *keyboard_focus == Some(path_variant) {
-        let mut responses = vec![response];
-        for (idx, (config, param)) in configs.iter().zip(params.into_iter()).enumerate() {
-            let i = idx as f32;
-            let mut val = state.get_ui_parameter(param);
-            // TODO design
-            // which looks better?
-            // * prefixed DragValue
-            // * text then DragValue
-            ui.horizontal(|ui| {
-                // * prefixed DragValue
-                // let rect = Rect::from_two_pos(
-                //     Pos2::new(to_rect.min.x, to_rect.max.y + (i * 25.0) + 10.0),
-                //     Pos2::new(to_rect.max.x, to_rect.max.y + (i * 25.0) + 10.0),
-                // );
-                // let edit_response = ui.put(
-                //     rect,
-                //     egui::DragValue::new(&mut val)
-                //         .clamp_range(config.min..=config.max)
-                //         .speed(config.speed)
-                //         .prefix(format!("{}: ", config.ui_display))
-                //         .fixed_decimals(2),
-                // );
-
-                // * text then DragValue
-                let text_rect = Rect::from_two_pos(
-                    Pos2::new(to_rect.min.x, to_rect.max.y + (i * 25.0) + 10.0),
-                    Pos2::new(to_rect.min.x + 20.0, to_rect.max.y + (i * 25.0) + 10.0),
-                );
-                let edit_rect = Rect::from_two_pos(
-                    Pos2::new(to_rect.min.x + 25.0, to_rect.max.y + (i * 25.0) + 7.5),
-                    Pos2::new(to_rect.max.x, to_rect.max.y + (i * 25.0) + 7.5),
-                );
-                ui.put(
-                    text_rect,
-                    egui::Label::new(format!("{}: ", config.ui_display)),
-                );
-                let edit_response = ui.put(
-                    edit_rect,
-                    egui::DragValue::new(&mut val)
-                        .clamp_range(config.min..=config.max)
-                        .speed(config.speed)
-                        .fixed_decimals(2),
-                );
-                if edit_response.changed() {
-                    state.set_parameter(param, val);
-                };
-                responses.push(edit_response);
-            });
-        }
-        if responses
-            .iter()
-            .all(|response| response.clicked_elsewhere())
-        {
-            *keyboard_focus = None;
-        }
-    }
+    //    if *keyboard_focus == Some(path_variant) {
+    //        //let parameter_editor_rect = Rect::from_x_y_ranges(600.0..=900.0, 15.0..=150.0);
+    //        //let mut responses = draw_parameter_editor(ui, state, params, parameter_editor_rect);
+    //        //responses.push(response);
+    //        //if responses
+    //        //    .iter()
+    //        //    .all(|response| response.clicked_elsewhere())
+    //        //{
+    //        //    *keyboard_focus = None;
+    //        //}
+    //        let mut editor_params = state.editor_params.lock().unwrap();
+    //        *editor_params = params;
+    //        if response.clicked_elsewhere() {
+    //            *keyboard_focus = None;
+    //        }
+    //    }
     draw_line(
         ui,
         curve,
