@@ -1,5 +1,7 @@
 <h1 align="center"><i>DeepGliss</i></h1>
 
+<a href="https://joshuapostel.github.io/deep-gliss" align="center">joshuapostel.github.io/deep-gliss</a>
+
 <p align="center">
 VST2 plugin performing continuous pitch bend between chords.
 </p>
