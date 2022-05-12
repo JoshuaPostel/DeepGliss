@@ -1,7 +1,7 @@
 <h1 align="center"><i>DeepGliss</i></h1>
 
 <p align="center">
- <a href="https://joshuapostel.github.io/DeepGliss">joshuapostel.github.io/DeepGliss</a>
+ <a href="https://joshuapostel.github.io/deep-gliss">joshuapostel.github.io/deep-gliss</a>
 </p>
   
 <p align="center">
