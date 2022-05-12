@@ -1,7 +1,9 @@
 <h1 align="center"><i>DeepGliss</i></h1>
 
-<a href="https://joshuapostel.github.io/deep-gliss" align="center">joshuapostel.github.io/deep-gliss</a>
-
+<p align="center">
+ <a href="https://joshuapostel.github.io/DeepGliss">joshuapostel.github.io/DeepGliss</a>
+</p>
+  
 <p align="center">
 VST2 plugin performing continuous pitch bend between chords.
 </p>
@@ -9,7 +11,5 @@ VST2 plugin performing continuous pitch bend between chords.
 ![screenshot](DeepGliss.png)
 
 ## About
-
-The inspiration for this project came when trying to recreate [Deep Note](https://en.wikipedia.org/wiki/Deep_Note).
 
 The name DeepGliss comes from [Deep Note](https://en.wikipedia.org/wiki/Deep_Note) + [Glissando](https://en.wikipedia.org/wiki/Glissando).
