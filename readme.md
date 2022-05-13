@@ -10,6 +10,10 @@ VST2 plugin performing continuous pitch bend between chords.
 
 ![screenshot](DeepGliss.png)
 
+## Build from source
+
+`cargo +nightly build --release`
+
 ## About
 
 The name DeepGliss comes from [Deep Note](https://en.wikipedia.org/wiki/Deep_Note) + [Glissando](https://en.wikipedia.org/wiki/Glissando).
