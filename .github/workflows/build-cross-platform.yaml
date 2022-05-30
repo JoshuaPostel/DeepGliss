@@ -17,11 +17,17 @@ jobs:
         os: [ ubuntu-20.04 ]
     
     steps:
-    - name: ubuntu install baseview dependencies
-      run: |
-        sudo apt update
-        sudo apt install libgl-dev libx11-xcb-dev libxcb1-dev libxcb-dri2-0-dev libxcb-icccm4-dev libxcursor-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
-      if: contains(matrix.os, 'ubuntu')
+      - uses: actions/checkout@v2
 
-    - name: build
-      run: cargo +nightly build --release --verbose
+      - name: ubuntu install baseview dependencies
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev libx11-xcb-dev libxcb1-dev libxcb-dri2-0-dev libxcb-icccm4-dev libxcursor-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
+        if: contains(matrix.os, 'ubuntu')
+  
+      - name: build
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+        run: cargo +nightly build --release --verbose
