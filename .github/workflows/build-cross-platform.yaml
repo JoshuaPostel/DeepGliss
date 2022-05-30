@@ -43,11 +43,9 @@ jobs:
         id: build
         env:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
-        # for now dont do release so that we can test faster
-        #run: cargo +nightly build --release --verbose
         run: |
-          cargo +nightly build
-          ls -l $CARGO_TARGET_DIR/release 
+          cargo +nightly build --release
+          ls -l target-$CARGO_TARGET_DIR/release
 
       - name: create release
         id: create_release
