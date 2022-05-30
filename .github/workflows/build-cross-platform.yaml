@@ -1,0 +1,27 @@
+name: build-cross-platform
+
+env:
+  CARGO_TERM_COLOR: always
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'hello world'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ]
+    
+    steps:
+    - name: ubuntu install baseview dependencies
+      run: |
+        sudo apt update
+        sudo apt install libgl-dev libx11-xcb-dev libxcb1-dev libxcb-dri2-0-dev libxcb-icccm4-dev libxcursor-dev libxkbcommon-dev libxcb-shape0-dev libxcb-xfixes0-dev
+      if: contains(matrix.os, 'ubuntu')
+
+    - name: build
+      run: cargo +nightly build --release --verbose
