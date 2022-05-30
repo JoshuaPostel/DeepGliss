@@ -45,7 +45,8 @@ jobs:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
         run: |
           cargo +nightly build --release
-          ls -l target-$CARGO_TARGET_DIR/release
+          pwd
+          ls -l
 
       - name: create release
         id: create_release
