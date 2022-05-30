@@ -46,10 +46,9 @@ jobs:
       - name: create release
         id: create_release
         env:
-          CARGO_TARGET_DIR=target-${{ matrix.os }}
-        uses: actions/create-release@v1
-        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_TARGET_DIR: target-${{ matrix.os }}
+        uses: actions/create-release@v1
         with:
           tag_name: 0.1.1
           draft: false
