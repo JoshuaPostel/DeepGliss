@@ -41,7 +41,7 @@ jobs:
         id: build
         # for now dont do release so that we can test faster
         #run: cargo +nightly build --release --verbose
-        run: cargo +nightly build --verbose
+        run: cargo +nightly build
 
       - name: create release
         id: create_release
@@ -59,6 +59,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_rul: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: target-${{ matrix.os }}/release/libgliss.${{ matrix.target-extension }}
           asset_name: DeepGliss.${{ matrix.target-extension }}
