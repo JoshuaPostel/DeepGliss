@@ -46,7 +46,7 @@ jobs:
         run: |
           cargo +nightly build --release
           pwd
-          ls -l $CARGO_TARGET_DIR
+          ls -l $CARGO_TARGET_DIR/release
 
       - name: create release
         id: create_release
