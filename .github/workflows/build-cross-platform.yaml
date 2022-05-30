@@ -19,8 +19,8 @@ jobs:
             target-extension: so
           - os: windows-latest
             target-extension: dll
-          - os: macos-latest
-            target-extension: so
+#          - os: macos-latest
+#            target-extension: so
     
     steps:
       - name: checkout code
@@ -46,7 +46,7 @@ jobs:
         run: |
           cargo +nightly build --release
           pwd
-          ls -l
+          ls -l $CARGO_TARGET_DIR
 
       - name: create release
         id: create_release
