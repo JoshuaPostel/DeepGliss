@@ -62,3 +62,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: target-${{ matrix.os }}/release/libgliss.${{ matrix.target-extension }}
           asset_name: DeepGliss.${{ matrix.target-extension }}
+          asset_content_type:  application/octet-stream
