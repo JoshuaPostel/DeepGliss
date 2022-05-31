@@ -33,12 +33,12 @@ jobs:
     strategy:
       matrix:
         include:
-          #- os: ubuntu-latest
-          #  target-name: libgliss 
-          #  target-extension: so
-          #- os: windows-latest
-          #  target-name: gliss 
-          #  target-extension: dll
+          - os: ubuntu-latest
+            target-name: libgliss 
+            target-extension: so
+          - os: windows-latest
+            target-name: gliss 
+            target-extension: dll
           - os: macos-latest
             target-name: libgliss 
             target-extension: dylib
@@ -64,10 +64,7 @@ jobs:
         id: build
         env:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
-        run: |
-          cargo +nightly build --release
-          ls -laR
-          find / -name libgliss.dylib
+        run: cargo +nightly build --release
 
 
       - name: upload release
