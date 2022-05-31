@@ -46,9 +46,9 @@ jobs:
         run: |
           cargo +nightly build --release
           pwd
-          ls -la ${GITHUB_WORKSPACE}
-          ls -la ${GITHUB_WORKSPACE}/target-windows-latest
-          ls -la ${GITHUB_WORKSPACE}/target-windows-latest/release
+          ls -l ${GITHUB_WORKSPACE}
+          ls -l ${GITHUB_WORKSPACE}/target-windows-latest
+          ls -l ${GITHUB_WORKSPACE}/target-windows-latest/release
 
       - name: create release
         id: create_release
