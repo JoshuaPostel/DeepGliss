@@ -15,9 +15,11 @@ jobs:
     strategy:
       matrix:
         include:
-#          - os: ubuntu-latest
-#            target-extension: so
+          - os: ubuntu-latest
+            target-name: libgliss 
+            target-extension: so
           - os: windows-latest
+            target-name: gliss 
             target-extension: dll
 #          - os: macos-latest
 #            target-extension: so
@@ -43,9 +45,7 @@ jobs:
         id: build
         env:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
-        run: |
-          cargo +nightly build --release
-          Get-ChildItem -r -fi *.dll
+        run: cargo +nightly build --release
 
 
       - name: create release
@@ -64,6 +64,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: target-${{ matrix.os }}/release/libgliss.${{ matrix.target-extension }}
+          asset_path: target-${{ matrix.os }}/release/${{ matrix.target-name}}.${{ matrix.target-extension }}
           asset_name: DeepGliss.${{ matrix.target-extension }}
           asset_content_type:  application/octet-stream
