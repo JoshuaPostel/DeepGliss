@@ -43,7 +43,10 @@ jobs:
         id: build
         env:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
-        run: cargo +nightly build --release
+        run: |
+          cargo +nightly build --release
+          pwd
+          ls -laR
 
       - name: create release
         id: create_release
