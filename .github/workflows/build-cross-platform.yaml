@@ -15,8 +15,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            target-extension: so
+#          - os: ubuntu-latest
+#            target-extension: so
           - os: windows-latest
             target-extension: dll
 #          - os: macos-latest
@@ -43,10 +43,7 @@ jobs:
         id: build
         env:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
-        run: |
-          cargo +nightly build --release
-          pwd
-          ls -l $CARGO_TARGET_DIR/release
+        run: cargo +nightly build --release
 
       - name: create release
         id: create_release
