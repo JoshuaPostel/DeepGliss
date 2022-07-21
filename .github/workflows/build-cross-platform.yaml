@@ -41,7 +41,7 @@ jobs:
             target-extension: dll
           - os: macos-latest
             target-name: libgliss 
-            target-extension: dylib
+            target-extension: vst
     
     steps:
       - name: checkout code
