@@ -71,7 +71,7 @@ jobs:
         run: |
           ls -l .
           ls -l ./target-${{ matrix.os }}/release/
-          bash ./osx_vst_bundler.sh "./target-${{ matrix.os }}/release/libgliss.dylib"
+          bash ./osx_vst_bundler.sh "./target-${{ matrix.os }}/release/libgliss.dylib" target-${{ matrix.os }}/release/libgliss
           ls -l ./target-${{ matrix.os }}/release/
           pwd
 
