@@ -66,6 +66,13 @@ jobs:
           CARGO_TARGET_DIR: target-${{ matrix.os }}
         run: cargo +nightly build --release
 
+      - name: package for macos
+        if: matrix.os == 'macos-latest'
+        run: |
+          ls -l .
+          ls -l ./target/release/
+          bash ./osx_vst_bundler.sh "./target/release/libgliss.dylib" DeepGliss
+          ls -l ./target/release/
 
       - name: upload release
         uses: actions/upload-release-asset@v1
