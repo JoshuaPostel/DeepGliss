@@ -40,7 +40,7 @@ jobs:
             target-name: gliss 
             target-extension: dll
           - os: macos-latest
-            target-name: libgliss.dylib
+            target-name: DeepGliss
             target-extension: vst.zip
     
     steps:
@@ -73,9 +73,9 @@ jobs:
           ls -l ./target-${{ matrix.os }}/release/
           bash ./osx_vst_bundler.sh DeepGliss target-${{ matrix.os }}/release/libgliss
           ls -l .
-          zip DeepGliss.zip DeepGliss.vst
+          zip DeepGliss.vst.zip DeepGliss.vst
           ls -l .
-          mv DeepGliss.zip target-${{ matrix.os }}/release/
+          mv DeepGliss.vst.zip target-${{ matrix.os }}/release/
           ls -l ./target-${{ matrix.os }}/release/
           pwd
 
