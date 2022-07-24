@@ -70,9 +70,9 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           ls -l .
-          ls -l ./target/release/
-          bash ./osx_vst_bundler.sh "./target/release/libgliss.dylib" DeepGliss
-          ls -l ./target/release/
+          ls -l ./target-${{ matrix.os }}/release/
+          bash ./osx_vst_bundler.sh "./target-${{ matrix.os }}/release/libgliss.dylib" DeepGliss
+          ls -l ./target-${{ matrix.os }}/release/
 
       - name: upload release
         uses: actions/upload-release-asset@v1
