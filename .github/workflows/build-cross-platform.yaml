@@ -71,9 +71,9 @@ jobs:
         run: |
           ls -l .
           ls -l ./target-${{ matrix.os }}/release/
-          bash ./osx_vst_bundler.sh DeepGliss target-${{ matrix.os }}/release/libgliss
+          bash ./osx_vst_bundler.sh DeepGliss target-${{ matrix.os }}/release/libgliss.dylib
           ls -l .
-          zip DeepGliss.vst.zip DeepGliss.vst
+          zip -r DeepGliss.vst.zip DeepGliss.vst
           ls -l .
           mv DeepGliss.vst.zip target-${{ matrix.os }}/release/
           ls -l ./target-${{ matrix.os }}/release/
