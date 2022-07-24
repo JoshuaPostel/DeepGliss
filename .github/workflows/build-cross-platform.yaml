@@ -40,7 +40,7 @@ jobs:
             target-name: gliss 
             target-extension: dll
           - os: macos-latest
-            target-name: libgliss 
+            target-name: libgliss.dylib
             target-extension: vst
     
     steps:
@@ -71,8 +71,9 @@ jobs:
         run: |
           ls -l .
           ls -l ./target-${{ matrix.os }}/release/
-          bash ./osx_vst_bundler.sh "./target-${{ matrix.os }}/release/libgliss.dylib" target-${{ matrix.os }}/release/libgliss
+          bash ./osx_vst_bundler.sh "./target-${{ matrix.os }}/release/libgliss.dylib"
           ls -l ./target-${{ matrix.os }}/release/
+          pwd
 
       - name: upload release
         uses: actions/upload-release-asset@v1

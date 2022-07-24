@@ -1,6 +1,5 @@
 #![feature(div_duration)]
 #![feature(map_first_last)]
-#![feature(derive_default_enum)]
 #![allow(dead_code)]
 
 #[macro_use]
