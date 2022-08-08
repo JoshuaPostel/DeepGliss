@@ -7,7 +7,6 @@ use crate::midi::Note;
 use crate::state::GlissParam::*;
 use crate::state::{EditorState, ErrorState};
 
-use core::ptr;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -550,38 +549,31 @@ impl Editor for GlissEditor {
 
 pub struct VstParent(pub *mut ::std::ffi::c_void);
 
-#[cfg(target_os = "macos")]
 unsafe impl HasRawWindowHandle for VstParent {
+    #[cfg(target_os = "macos")]
     fn raw_window_handle(&self) -> RawWindowHandle {
-        use raw_window_handle::macos::MacOSHandle;
+        let mut handle = raw_window_handle::AppKitHandle::empty();
 
-        RawWindowHandle::MacOS(MacOSHandle {
-            ns_view: self.0 as *mut ::std::ffi::c_void,
-            ..MacOSHandle::empty()
-        })
+        handle.ns_view = self.0;
+
+        RawWindowHandle::AppKit(handle)
     }
-}
 
-#[cfg(target_os = "windows")]
-unsafe impl HasRawWindowHandle for VstParent {
+    #[cfg(target_os = "windows")]
     fn raw_window_handle(&self) -> RawWindowHandle {
-        use raw_window_handle::windows::WindowsHandle;
+        let mut handle = raw_window_handle::Win32Handle::empty();
 
-        RawWindowHandle::Windows(WindowsHandle {
-            hwnd: self.0,
-            ..WindowsHandle::empty()
-        })
+        handle.hwnd = self.0;
+
+        RawWindowHandle::Win32(handle)
     }
-}
 
-#[cfg(target_os = "linux")]
-unsafe impl HasRawWindowHandle for VstParent {
+    #[cfg(target_os = "linux")]
     fn raw_window_handle(&self) -> RawWindowHandle {
-        use raw_window_handle::XcbHandle;
+        let mut handle = raw_window_handle::XcbHandle::empty();
 
-        let mut xcb_handle = XcbHandle::empty();
-        xcb_handle.window = self.0 as u32;
+        handle.window = self.0 as u32;
 
-        RawWindowHandle::Xcb(xcb_handle)
+        RawWindowHandle::Xcb(handle)
     }
 }
