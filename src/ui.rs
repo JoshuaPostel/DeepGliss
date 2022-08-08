@@ -7,6 +7,7 @@ use crate::midi::Note;
 use crate::state::GlissParam::*;
 use crate::state::{EditorState, ErrorState};
 
+use core::ptr;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -576,11 +577,11 @@ unsafe impl HasRawWindowHandle for VstParent {
 #[cfg(target_os = "linux")]
 unsafe impl HasRawWindowHandle for VstParent {
     fn raw_window_handle(&self) -> RawWindowHandle {
-        use raw_window_handle::unix::XcbHandle;
+        use raw_window_handle::XcbHandle;
 
-        RawWindowHandle::Xcb(XcbHandle {
-            window: self.0 as u32,
-            ..XcbHandle::empty()
-        })
+        let mut xcb_handle = XcbHandle::empty();
+        xcb_handle.window = self.0 as u32;
+
+        RawWindowHandle::Xcb(xcb_handle)
     }
 }

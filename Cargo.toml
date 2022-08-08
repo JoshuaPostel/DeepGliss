@@ -16,8 +16,8 @@ path = "src/bin.rs"
 
 [dependencies]
 
-baseview = {git = "https://github.com/RustAudio/baseview", rev = "f6e99e9aa6f5aeb6b721cb05e4d882a51d995909" }
-egui-baseview = {git = "https://github.com/BillyDM/egui-baseview", rev = "b7436c02309347e49ffd4491bf31cdef6e759eb7" }
+baseview = {git = "https://github.com/RustAudio/baseview", rev = "b3712638bacb3fdf2883cb5aa3f6caed0e91ac8c" }
+egui-baseview = {git = "https://github.com/JoshuaPostel/egui-baseview", rev = "e907e01222e366e5d96f7dadc56a072489ff21be" }
 egui = "0.15"
 emath = "0.15"
 epaint = "0.15"
@@ -25,7 +25,7 @@ epaint = "0.15"
 dirs = "4"
 log = "0.4"
 log-panics = "2"
-raw-window-handle = "0.3"
+raw-window-handle = "0.4.2"
 simplelog = "0.11"
 vst = "0.2.1"
 rtrb = "0.2"
